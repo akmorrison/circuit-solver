@@ -57,3 +57,21 @@ However I feel this program is young enough (earliest of early alphas I guess?) 
 ####4. It's only resistors/poorly named
 
    This program only solves for equivalent resistances, and it would be nice to add voltage/current sources and be able to solve for voltages/currents/power consumption. This is obviously a "down the road" kinda thing, so it's at the end of the list, but it would make circuits class much easier
+
+
+basic documentation/class layout-y map
+--------------------------------------
+
+So there are two important classes in this program. There's `Circuit` and `Graphical`
+
+`Circuit` is the model of the circuit, it has nodes in it. `Node` is a class which has `Resistors` (another class) attached to them. `Circuit` has functions 
+
+   `add_resistor(a,b,r)` which connects nodes[a] and nodes[b] with a `Resistor` of resistance r.
+
+   `step` which combines two resistors and may delete a node. Parallel first, series second
+
+   `minimize` which steps as far as it can. Usually winds up with just one resistor left.
+
+`Graphical` is the displayer class, handles all the x11 and cairo nonsense that makes my head hurt to think about. It handles `Button` class, and has methods
+
+  `loop`, the only one that the user should ever call. It's the main loop, call it and `Graphical` does the rest.
