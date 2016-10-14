@@ -39,21 +39,21 @@ should this entire list be taken out of the readme and submitted as issues? yes.
 
 However I feel this program is young enough (earliest of early alphas I guess?) that I had might as well put them here.
 
-##1. Sometimes thigs disappear
+####1. Sometimes thigs disappear
 
    You may have noticed in the 3rd screenshot about that the quit and add node buttons disappeared. This just happens sometimes. You click something, or drag something, or move the window, or sneeze accidentally, and the screen goes blank, and then one frame later, none, some, or all of the elements reappear.
   I don't know why this is. I'm guessing it has something to do with cairo throwing an error and it not being caught. This is at the top of my list because it kinda breaks the programs a little bit, and it would be really nice to fix
   Note, the buttons still work even if they're not displayed, which is kinda weird
 
-##2. You can't add resistors
+####2. You can't add resistors
 
   You can currently add nodes by hitting the new node button, which creates a new node at (0,0) which you can then drag to wherever. There's currently no point in doing this, as you can't add anything to the node. Currently I add all the resistors manually in the main function with `Circuit::add_resistor`
   The reason I haven't fixed this yet is because it requires having a resistance value inputted by the user, probably via the keyboard, and whenever you let a user input anything, you introduce thousands of things which can go wrong. It would make the program much more useful, but it's not as important as fixing the graphical bugs, which make this very difficult to use
 
-##3. It's a tangled mess of spaghetti code which has almost no comments or documentation making it entirely unreadable and impossible to maintain
+####3. It's a tangled mess of spaghetti code which has almost no comments or documentation making it entirely unreadable and impossible to maintain
 
    That might be slightly dramatic. It's currently not that bad, and almost follows an MVC model with the `Circuit` class taking care of all the backend math and such and `Graphical` dealing with all the input and display stuff, but I'd like to split the latter into a true view and controller. Documentation does need work, but is not as pressing as the bugs above
 
-##4. It's only resistors/poorly named
+####4. It's only resistors/poorly named
 
    This program only solves for equivalent resistances, and it would be nice to add voltage/current sources and be able to solve for voltages/currents/power consumption. This is obviously a "down the road" kinda thing, so it's at the end of the list, but it would make circuits class much easier
