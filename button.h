@@ -11,9 +11,10 @@ class Button : public Draggable{
     int x,y;
     int width, height;
     void (Graphical::* func)();
+    cairo_surface_t* disp_image;
 
     Button();
-    Button(int xval, int yval, int w, int h, void (Graphical::* f)()) :x(xval),y(yval),width(w),height(h),func(f) {}  ;
+    Button(int xval, int yval, int w, int h, void (Graphical::* f)(), cairo_surface_t* image) :x(xval),y(yval),width(w),height(h),func(f),disp_image(image) {}  ;
 
 
     bool is_inside(int button_x, int button_y);

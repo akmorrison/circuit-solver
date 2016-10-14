@@ -8,25 +8,17 @@
 
 
 int main(){
-  Circuit c(5);
+  Circuit c(3);
   c.nodes[0]->x = 100;
-  c.nodes[0]->y = 100;
-  c.nodes[1]->x = 400;
-  c.nodes[1]->y = 100;
-  c.nodes[2]->x = 100;
-  c.nodes[2]->y = 400;
-  c.nodes[3]->x = 400;
-  c.nodes[3]->y = 400;
-  c.nodes[4]->x = 250;
-  c.nodes[4]->y = 250;
+  c.nodes[0]->y = 200;
+  c.nodes[1]->x = 250;
+  c.nodes[1]->y = 200;
+  c.nodes[2]->x = 400;
+  c.nodes[2]->y = 200;
 
   c.add_resistor(0,1,2.0);
   c.add_resistor(0,1,2.0);
-  c.add_resistor(0,1,2.0);
-  c.add_resistor(0,2,2.0);
-  c.add_resistor(2,3,2.0);
-  c.add_resistor(3,4,9.0);
+  c.add_resistor(1,2,4.0);
   Graphical g(&c, 500,500);
   g.loop();
-
 }

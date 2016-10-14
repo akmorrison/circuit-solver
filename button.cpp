@@ -1,5 +1,6 @@
 #include "button.h"
 #include "graphical.h"
+#include<iostream>
 #include<cairo/cairo.h>
 
 #define M_PI 3.141592
@@ -15,6 +16,11 @@ bool Button::is_inside(int button_x, int button_y){
 }
 
 void Button::draw_button(cairo_t* ctx){
+  cairo_save(ctx);
+  cairo_set_source_surface(ctx,disp_image,x,y);
+  cairo_paint(ctx);
+  cairo_restore(ctx);
+
   int radius = 10; //radius of the rounded corners
 
   cairo_new_sub_path(ctx);

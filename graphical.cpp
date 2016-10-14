@@ -36,8 +36,15 @@ Graphical::Graphical(Circuit *c, int width, int height){
 
   //button code
   continue_flag = true;
-  buttons.push_back(new Button(WIDTH-100,HEIGHT-60,40,40,&Graphical::step));
-  buttons.push_back(new Button(WIDTH-60, HEIGHT-60,40,40,&Graphical::quit));
+  buttons.push_back(new Button(WIDTH-100,HEIGHT-60,40,40,
+    &Graphical::step,
+    cairo_image_surface_create_from_png("images/step_button.png")));
+  buttons.push_back(new Button(WIDTH-60, HEIGHT-60,40,40,
+    &Graphical::quit,
+    cairo_image_surface_create_from_png("images/quit_button.png")));
+  buttons.push_back(new Button(WIDTH-140,HEIGHT-60,40,40,
+    &Graphical::addNode,
+    cairo_image_surface_create_from_png("images/node_button.png")));
 
   current_drag = NULL;
 }
@@ -58,6 +65,13 @@ std::cout << "step button pressed\n";
 
 void Graphical::quit(){
   continue_flag = false;
+}
+
+void Graphical::addNode(){
+  Node* new_node = new Node();
+  new_node->drag_to(WIDTH/2,HEIGHT/2); //put the new node in the middle of the screen
+
+  circuit->nodes.push_back(new Node()); // add to nodes
 }
 
 void Graphical::draw_text(int x, int y, double theta, std::string resvalue){
@@ -274,6 +288,9 @@ void Graphical::loop(){
   int x,y;
   while(1){ //main loop
     draw();
+
+
+    //handle next event
     XNextEvent(display,&event);
     switch(event.type){
       case ButtonPress:
