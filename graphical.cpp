@@ -89,10 +89,19 @@ void Graphical::draw_text(int x, int y, double theta, std::string resvalue){
 }
 
 void Graphical::draw_squigley(int x1, int y1, int x2, int y2, int ascent, double resistance){
+  //draws a 6 point squigley line because that's what resistors look like.
+  //Each vertex is (ascent) distance from the line (x1,y1)->(x2,y2). 
+  //This function also writes out the resistance above the squgley,
+  //using the draw_text funciton
+
+  //start at (x1,y1)
   cairo_move_to(ctx,x1,y1);
 
   int deltax = x2-x1;
   int deltay = y2-y1;
+  
+  //xcomp is the x-part of the ascent vector, which has magnitude
+  //1 and the negative reciprocal slope of (x1,y1)->(x2,y2)
   double xcomp,ycomp;
   if(deltax == 0){
     xcomp = 1;
@@ -103,6 +112,7 @@ void Graphical::draw_squigley(int x1, int y1, int x2, int y2, int ascent, double
     ycomp = cos(atan(((double)deltay)/deltax));
   }
 
+  //a 6 point squigley has 12 lines
   for(int i = 1; i < 12; i += 2){
     int j = (i-1)/2;
     int xval = x1+i*deltax/12 + pow(-1,j)*ascent*xcomp;
@@ -170,20 +180,26 @@ void Graphical::draw_resistors_parallel(std::vector<Resistor*> parallels){
   y2 = r->b->y;
   int distance = (int) sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
 
+  //the total distance of the resistor should be less than
+  // 100px. If it's more than that, draw some traces to make it that
   if(distance > 100){
     double temp = 100.0/distance;
     int new_x1, new_x2, new_y1,new_y2,dx,dy;
     dx = x2-x1;
     dy = y2-y1;
+
+    //find two points on the line (x1,y1)->(x2,y2)
+    //which are equidistant from the midpoint and
+    //100px apart
     new_x1 = x1+(dx/2-temp*dx/2);
     new_x2 = x2-(dx/2-temp*dx/2);
     new_y1 = y1+(dy/2-temp*dy/2);
     new_y2 = y2-(dy/2-temp*dy/2);
 
-    //draw the first line
+    //draw the first parallel line
     cairo_move_to(ctx,x1,y1);
     cairo_line_to(ctx,new_x1,new_y1);
-    //draw the second line
+    //draw the second parallel line
     cairo_move_to(ctx,x2,y2);
     cairo_line_to(ctx,new_x2,new_y2);
 
@@ -207,6 +223,7 @@ void Graphical::draw_resistors_parallel(std::vector<Resistor*> parallels){
     ycomp = cos(atan(((double)deltay)/deltax));
   }
 
+/*
   //draw the orthogonal bars
   int pad = 20;
   int orthog_length = (ascent+pad)*(parallels.size()-1);
@@ -218,12 +235,54 @@ void Graphical::draw_resistors_parallel(std::vector<Resistor*> parallels){
   cairo_line_to(ctx,x1-xcomp*orthog_length,y1-ycomp*orthog_length);
   cairo_move_to(ctx,x2+xcomp*orthog_length,y2+ycomp*orthog_length);
   cairo_line_to(ctx,x2-xcomp*orthog_length,y2-ycomp*orthog_length);
+*/
+  //find the slope of the orthogonal
+  double xpart, ypart; //x and y components of a unit vector orthogonal to slope
+  //edge cases to avoid division by 0
+  if(deltay == 0){
+    xpart = 0;
+    ypart = 1;
+  }
+  else if(deltax == 0){
+    xpart = 1;
+    ypart = 0;
+  }
+  //general case, not even remotely optimized
+  else{
+    double slope = ((double)deltay)/deltax;
+    double orthog_slope = -1/slope;
+    xpart = 1;
+    ypart = orthog_slope*xpart;
+    double reduction_factor = sqrt(xpart*xpart + ypart*ypart);
+    xpart /= reduction_factor;
+    ypart /= reduction_factor;
+  }
+
+  //draw the orthogonal bars
+  int pad = 20; //pixels between two parallel resistors
+  int orthog_length = (2*ascent+pad)*(parallels.size()-1);
+  //starting positions for the bars
+  int xstart1 = x1-xpart*orthog_length/2;
+  int ystart1 = y1-ypart*orthog_length/2;
+  int xstart2 = x2-xpart*orthog_length/2;
+  int ystart2 = y2-ypart*orthog_length/2;
+  //draw bar 1
+  cairo_move_to(ctx,xstart1,ystart1);
+  cairo_line_to(ctx,xstart1+xpart*orthog_length,ystart1+ypart*orthog_length);
+  //draw bar 2
+  cairo_move_to(ctx,xstart2,ystart2);
+  cairo_line_to(ctx,xstart2+xpart*orthog_length,ystart2+ypart*orthog_length);
+
+
+
+
+  //draw each parallel resistor
   for(int i = 0; i < parallels.size(); i++){
     int xt1, yt1, xt2, yt2;
-    xt1 = xstart1-(ascent+pad)*xcomp*i*2;
-    yt1 = ystart1-(ascent+pad)*ycomp*i*2;
-    xt2 = xstart2-(ascent+pad)*xcomp*i*2;
-    yt2 = ystart2-(ascent+pad)*ycomp*i*2;
+    xt1 = xstart1+(2*ascent+pad)*xpart*i;
+    yt1 = ystart1+(2*ascent+pad)*ypart*i;
+    xt2 = xstart2+(2*ascent+pad)*xpart*i;
+    yt2 = ystart2+(2*ascent+pad)*ypart*i;
     draw_squigley(xt1,yt1,xt2,yt2,ascent,parallels[i]->resistance);
   }
 
