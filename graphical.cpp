@@ -36,14 +36,17 @@ Graphical::Graphical(Circuit *c, int width, int height){
 
   //button code
   continue_flag = true;
-  buttons.push_back(new Button(WIDTH-100,HEIGHT-60,40,40,
-    &Graphical::step,
-    cairo_image_surface_create_from_png("images/step_button.png")));
   buttons.push_back(new Button(WIDTH-60, HEIGHT-60,40,40,
     &Graphical::quit,
     cairo_image_surface_create_from_png("images/quit_button.png")));
+  buttons.push_back(new Button(WIDTH-100,HEIGHT-60,40,40,
+    &Graphical::step,
+    cairo_image_surface_create_from_png("images/step_button.png")));
   buttons.push_back(new Button(WIDTH-140,HEIGHT-60,40,40,
     &Graphical::addNode,
+    cairo_image_surface_create_from_png("images/node_button.png")));
+  buttons.push_back(new Button(WIDTH-180,HEIGHT-60,40,40,
+    &Graphical::addResistor,
     cairo_image_surface_create_from_png("images/node_button.png")));
 
   current_drag = NULL;
@@ -72,6 +75,20 @@ void Graphical::addNode(){
   new_node->drag_to(WIDTH/2,HEIGHT/2); //put the new node in the middle of the screen
 
   circuit->nodes.push_back(new Node()); // add to nodes
+}
+
+void Graphical::addResistor(){
+  //count selected nodes
+  int count = 0;
+  std::vector<Node*> nodes;
+  for(auto n : circuit->nodes)
+    if(n->selected){
+      count++;
+      nodes.push_back(n);
+    }
+  if(count != 2)
+    throw std::runtime_error("add resistor requires only 2 selected nodes");
+  new Resistor(100,nodes[0],nodes[1]);
 }
 
 void Graphical::draw_text(int x, int y, double theta, std::string resvalue){
@@ -223,19 +240,6 @@ void Graphical::draw_resistors_parallel(std::vector<Resistor*> parallels){
     ycomp = cos(atan(((double)deltay)/deltax));
   }
 
-/*
-  //draw the orthogonal bars
-  int pad = 20;
-  int orthog_length = (ascent+pad)*(parallels.size()-1);
-  int xstart1 = x1+xcomp*orthog_length;
-  int ystart1 = y1+ycomp*orthog_length;
-  int xstart2 = x2+xcomp*orthog_length;
-  int ystart2 = y2+ycomp*orthog_length;
-  cairo_move_to(ctx,x1+xcomp*orthog_length,y1+ycomp*orthog_length);
-  cairo_line_to(ctx,x1-xcomp*orthog_length,y1-ycomp*orthog_length);
-  cairo_move_to(ctx,x2+xcomp*orthog_length,y2+ycomp*orthog_length);
-  cairo_line_to(ctx,x2-xcomp*orthog_length,y2-ycomp*orthog_length);
-*/
   //find the slope of the orthogonal
   double xpart, ypart; //x and y components of a unit vector orthogonal to slope
   //edge cases to avoid division by 0

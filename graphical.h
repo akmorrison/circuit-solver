@@ -32,6 +32,7 @@ class Graphical{
   void step();
   void quit();
   void addNode();
+  void addResistor();
 
   void draw_text(int x, int y, double theta, std::string resvalue);
   void draw_squigley(int x1, int y1, int x2, int y2, int ascent, double resistance);

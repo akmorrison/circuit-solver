@@ -5,10 +5,11 @@
 
 Node::Node(){
   x = y = 0;
+  selected = false;
 }
 
 Node::~Node(){
-  x = y = 0;
+//  x = y = 0;
   while(resistors.size()){
     delete resistors[0];
   }

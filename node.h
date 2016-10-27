@@ -10,6 +10,7 @@ class Node : public Draggable{
   public:
   std::vector<Resistor*> resistors;
   int x,y;
+  bool selected;
 
   Node();
   Node(std::vector<Resistor*> r) : resistors(r) {};
