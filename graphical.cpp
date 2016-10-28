@@ -62,7 +62,6 @@ Graphical::~Graphical(){
 }
 
 void Graphical::step(){
-std::cout << "step button pressed\n";
   circuit->step();
 }
 
@@ -301,8 +300,11 @@ void Graphical::draw_node(Node* n){
 void Graphical::draw_circuit(){
 
 //draw each node
-  cairo_set_source_rgb(ctx,0,0,1);
   for(int i = 0; i < circuit->nodes.size(); i++){
+    if(circuit->nodes[i]->selected)
+      cairo_set_source_rgb(ctx,0,1,0);
+    else
+      cairo_set_source_rgb(ctx,0,0,1);
     draw_node(circuit->nodes[i]);
   }
 
@@ -346,7 +348,7 @@ void Graphical::draw(){
 }
 
 void Graphical::loop(){
-
+//this is a great example of functionality that belongs in the controller
   XEvent event;
   int x,y;
   while(1){ //main loop
@@ -369,6 +371,9 @@ void Graphical::loop(){
         Node* n = circuit->nodes[i];
         if((x-n->x)*(x-n->x)+(y-n->y)*(y-n->y) < 100){ //if we clicked the node
 //TODO
+          if(current_drag != n)
+            //toggle selected on that node
+            n->selected ^= 1;
           current_drag = n;
         } 
       }

@@ -1,3 +1,1 @@
-g++ command, stored in file because there's no way in hell I can remember it offhand
-
 g++ *.cpp -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -lcairo -std=c++11
