@@ -64,6 +64,10 @@ void Circuit::remove_node(Node* a){
   delete a;
 }
 
+void Circuit::add_node(){
+  nodes.push_back(new Node);
+}
+
 bool Circuit::step(){
   //search for all series resistors
   for(int i = 0; i < nodes.size(); i++){

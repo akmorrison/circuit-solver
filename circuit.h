@@ -15,6 +15,7 @@ class Circuit{
 
   int index_of_node(Node* a);
   void remove_node(Node* a);
+  void add_node();
 
   void set_node_num(int n);
   void resize_nodes(int n);
