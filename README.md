@@ -21,15 +21,15 @@ screenshots
 -----------
 so I mocked up a circuit with three nodes and three resistors
 
-![alt text](./screenshots/step_demo_1.png "step demo 1")
+![alt text](./screenshots/oct_14_2016/step_demo_1.png "step demo 1")
 
 hitting the step button (bottom right corner) will reduce the parallel resistors
 
-![alt text](./screenshots/step_demo_2.png "step demo 2")
+![alt text](./screenshots/oct_14_2016/step_demo_2.png "step demo 2")
 
 hitting the step button again will combine the two now series resistors
 
-![alt text](./screenshots/step_demo_3.png "step demo 3")
+![alt text](./screenshots/oct_14_2016/step_demo_3.png "step demo 3")
 
 
 current problems/things to fix
@@ -47,7 +47,7 @@ However I feel this program is young enough (earliest of early alphas I guess?) 
 
 ####2. You can't add resistors
 
-  You can currently add nodes by hitting the new node button, which creates a new node at (0,0) which you can then drag to wherever. There's currently no point in doing this, as you can't add anything to the node. Currently I add all the resistors manually in the main function with `Circuit::add_resistor`
+  You can currently add nodes by hitting the new node button, which creates a new node at (20,20) which you can then drag to wherever. There's currently no point in doing this, as you can't add anything to the node. Currently I add all the resistors manually in the main function with `Circuit::add_resistor`
   The reason I haven't fixed this yet is because it requires having a resistance value inputted by the user, probably via the keyboard, and whenever you let a user input anything, you introduce thousands of things which can go wrong. It would make the program much more useful, but it's not as important as fixing the graphical bugs, which make this very difficult to use
 
 ####3. It's a tangled mess of spaghetti code which has almost no comments or documentation making it entirely unreadable and impossible to maintain
