@@ -45,10 +45,10 @@ However I feel this program is young enough (earliest of early alphas I guess?) 
   I don't know why this is. I'm guessing it has something to do with cairo throwing an error and it not being caught. This is at the top of my list because it kinda breaks the programs a little bit, and it would be really nice to fix
   Note, the buttons still work even if they're not displayed, which is kinda weird
 
-####~~2. You can't add resistors
+####2. You can't add resistors
 
-  You can currently add nodes by hitting the new node button, which creates a new node at (20,20) which you can then drag to wherever. There's currently no point in doing this, as you can't add anything to the node. Currently I add all the resistors manually in the main function with `Circuit::add_resistor`
-  The reason I haven't fixed this yet is because it requires having a resistance value inputted by the user, probably via the keyboard, and whenever you let a user input anything, you introduce thousands of things which can go wrong. It would make the program much more useful, but it's not as important as fixing the graphical bugs, which make this very difficult to use ~~ gosh darn does it ever feel good to cross that one out
+  ~~You can currently add nodes by hitting the new node button, which creates a new node at (20,20) which you can then drag to wherever. There's currently no point in doing this, as you can't add anything to the node. Currently I add all the resistors manually in the main function with `Circuit::add_resistor`~~
+  ~~The reason I haven't fixed this yet is because it requires having a resistance value inputted by the user, probably via the keyboard, and whenever you let a user input anything, you introduce thousands of things which can go wrong. It would make the program much more useful, but it's not as important as fixing the graphical bugs, which make this very difficult to use ~~ gosh darn does it ever feel good to cross that one out
 
 ####3. It's a tangled mess of spaghetti code which has almost no comments or documentation making it entirely unreadable and impossible to maintain
 
