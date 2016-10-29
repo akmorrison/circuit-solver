@@ -21,7 +21,8 @@ Graphical::Graphical(int width, int height){
   XSelectInput(display,w, StructureNotifyMask |
                           ButtonPress | 
                           ButtonReleaseMask |
-                          Button1MotionMask);
+                          Button1MotionMask |
+                          KeyPressMask );
   XMapWindow(display,w);
   for(;;){
     XEvent e;
@@ -52,6 +53,30 @@ void Graphical::draw_text(int x, int y, double theta, std::string resvalue){
   cairo_show_text(ctx,resvalue.c_str());
   cairo_stroke(ctx);
   cairo_restore(ctx);
+}
+
+void Graphical::draw_textbox(int x, int y, std::vector<char> str){
+  //first, find the width and height of the text string
+  std::string new_str(str.begin(),str.end());
+  int text_width, text_height;
+  text_width = 100;
+  text_height = 30;
+
+  //white rectangle
+  cairo_rectangle(ctx,x,y,text_width,text_height);
+  //fill in in white
+  cairo_set_source_rgb(ctx,1,1,1);
+  cairo_fill(ctx);
+
+
+  //draw the border in black
+  cairo_set_source_rgb(ctx,0,0,0);
+  cairo_set_line_width(ctx,2);
+
+  cairo_rectangle(ctx,x,y,text_width,text_height);
+  cairo_stroke(ctx);
+
+  draw_text(x,y+text_height,0.0,new_str);
 }
 
 void Graphical::draw_squigley(int x1, int y1, int x2, int y2, int ascent, double resistance){

@@ -12,7 +12,10 @@ Controller::Controller(){
   g = new Graphical(WIDTH,HEIGHT);
   current_drag = NULL;
 
+  focus = no_focus;
   continue_flag = true;
+  editing_resistance = NULL;
+  textbox_x = textbox_y = 0;
 
   //initialize buttons
   buttons.reserve(4);
@@ -60,10 +63,85 @@ bool Controller::checkall_nodes(int x, int y){ //handle mouse clicks
     if(squared_distance < 100){ //we clicked within 10 pixels of the node
       n->selected ^= 1; //toggle n's selected-ness
       current_drag = n; //we're now dragging n
+      focus = dragging;
       return true;
     }
   }
   return false;
+}
+
+Resistor* Controller::checkall_resistors(int x, int y){
+/*
+this logic may get somewhat convoluted. So here's my plan
+for each pair of nodes. Count the resistors between them.
+if there is only one resistor between them, see if x,y
+is within 20 pixels of the midpoint between them.
+
+
+to test for which of parallel resistors is clicked,
+get a competent programmer to do this shit
+*/
+  for(int i=0;i<c->nodes.size();i++)for(int j=i+1;j<c->nodes.size();j++){
+  //when you're trying to fit two for statements in half a terminal
+  //window, you do some crazy things
+    Node* n = c->nodes[i];
+    Node* m = c->nodes[j];
+
+    //count resistors between n and m
+    std::vector<Resistor*> parallels;
+    for(Resistor *r : n->resistors)
+      if(r->a == m || r->b == m)
+        parallels.push_back(r);
+
+    //if there's only the one resistor between them
+    //calculate distance between midpoint of nm and (x,y)
+    if(parallels.size() == 1){
+      int mid_x = (n->x + m->x)/2;
+      int mid_y = (n->y + m->y)/2;
+      double distance = (x-mid_x)*(x-mid_x) + (y-mid_y)*(y-mid_y);
+      if(distance < 20*20)
+        return parallels[0];
+    }
+  }
+  return NULL;
+}
+
+char Controller::keycode_to_char(unsigned int keycode){
+  //jesus christ xlib handles this in a complicated way.
+  //this is highly machine dependant, so this is pretty much hardcoded
+  //if you're looking to make this program portable, this needs fixing
+
+  //my machine maps [26-29] to ['1'-'4']
+  //30 is '6', 31 is '5'
+  //it maps 33 to '9', 34 to '7'
+  //36 to '8', 37 to '0'
+
+  switch(keycode){ //there is probably a smart way to do this
+    case 37:       //what with it being 12:30am, and I have
+      return '0';  //absolutely no idea what I'm doing, I'm
+    case 26:       //gonna hardcode a switch statement for all
+      return '1';  //the keyvalues I care about
+    case 27:
+      return '2';
+    case 28:
+      return '3';
+    case 29:
+      return '4';
+    case 31:
+      return '5';
+    case 30:
+      return '6';
+    case 34:
+      return '7';
+    case 36:
+      return '8';
+    case 33:
+      return '9';
+    case 55:
+      return '.';
+    default:
+      return 'Q'; //no reason this is the default 
+  }
 }
 
 void Controller::loop(){
@@ -77,9 +155,9 @@ void Controller::loop(){
     g->draw_background();
     //draw circuit
     g->draw_circuit(c);
-    //draw buttons
-    for(Button* b : buttons)
-      b->draw_button(g->ctx);
+    //if we're in text entry mode, draw a textbox
+    if(focus == enter_text)
+      g->draw_textbox(textbox_x, textbox_y, current_string);
 
   //event handling
     //get Xevent
@@ -87,27 +165,65 @@ void Controller::loop(){
     //case by case possibilities
     switch(event.type){
       case ButtonPress:
-        //check for each button. if it was pressed, call its function
+      //if the user clicks a button or a node, enter dragging focus
+      //if the user clicks a resistor, enter enter_text focus
+      //if the user clicks empty space, enter no_focus focus
+
+        //check if user clicked button. if it was pressed, call its function
         x = event.xbutton.x;
         y = event.xbutton.y;
         if(checkall_buttons(x,y))
           break;
-      //else check for each node. If yes, select it, and make it current drag
-        if(checkall_nodes(x,y))
+      //else check for node. If yes, select it, and make it current drag
+        if(checkall_nodes(x,y)){
+          
           break;
-
+        }
+      //else check for resistor. If yes, start enter_text focus
+        Resistor* clicked_resistor;
+        if( (clicked_resistor = checkall_resistors(x,y)) != NULL){
+          focus = enter_text;
+          editing_resistance = clicked_resistor;
+          clicked_resistor->get_textbox_xy(textbox_x,textbox_y);
+          break;
+        }
+        //at this point, we assume the user clicked whitespace
+          //deselect all nodes
+          for(Node* n : c->nodes)
+            n->selected = false;
+          //if we were in enter_text mode, update resistor value
+          if(focus == enter_text){
+            editing_resistance->update_resistance(current_string);
+            //delete everything from current_string
+            current_string.clear();
+            //set editing resistance to null
+            editing_resistance = NULL;
+            textbox_x = textbox_y = -1;
+          }
+          //enter no_focus note
+          focus = no_focus;
         //end of case ButtonPress
         break;
       case ButtonRelease:
-        //nothing is being dragged. Release dragged
-        current_drag = NULL;
+      //if you're in dragging focus, enter no_focus focus
+        if(focus == dragging){
+          current_drag = NULL;
+          focus = no_focus;
+        }
         break; 
       case MotionNotify:
         x = event.xbutton.x;
         y = event.xbutton.y;
         //if something is being dragged, move it to mouse xy
-        if(current_drag != NULL)
+        if(focus == dragging)
           current_drag->drag_to(x,y); 
+        break;
+      case KeyPress:
+        //user typed a key. if we're in enter_text focus, push key on string
+        unsigned int key = event.xkey.keycode;
+        if(focus == enter_text){
+          current_string.push_back(keycode_to_char(key));
+        }
     }
   }
 }
@@ -150,7 +266,7 @@ void Controller::button_add_resistor(){
 
   //add a new 100 ohm resistor
   //why 100 ohm? because brown-black-brown looks like a sideways hamburger
-  //is it obvious that I'm writing this part at like 12:30am?
+  //is it obvious that I'm writing this part at like 1:30am?
   add_resistor(c->index_of_node(selected_nodes[0]),
                c->index_of_node(selected_nodes[1]),
                100.0);

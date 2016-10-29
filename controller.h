@@ -9,12 +9,25 @@ class Graphical;
 class Circuit;
 class Button;
 
+typedef enum {
+  no_focus,
+  dragging,
+  enter_text
+} State;
+
 class Controller{
   public:
   Circuit *c;
   Graphical *g;
   std::vector<Button*> buttons;
   Draggable* current_drag;
+
+  //variables for keypress entries
+  State focus;
+  std::vector<char> current_string;
+  int textbox_x, textbox_y;
+  char keycode_to_char(unsigned int keycode);
+  Resistor* editing_resistance;
 
   Controller();
   ~Controller();
@@ -24,6 +37,7 @@ class Controller{
 
   bool checkall_buttons(int x, int y); //mouseclick handler
   bool checkall_nodes(int x, int y); //you guessed it, another click handler
+  Resistor* checkall_resistors(int x, int y);
 
   void button_quit();
   void button_step();
