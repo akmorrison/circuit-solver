@@ -11,8 +11,7 @@
 #include<sstream>
 #include<cmath>
 
-Graphical::Graphical(Circuit *c, int width, int height){
-  circuit = c;
+Graphical::Graphical(int width, int height){
   WIDTH = width;
   HEIGHT = height;
 
@@ -33,61 +32,12 @@ Graphical::Graphical(Circuit *c, int width, int height){
   surface = cairo_xlib_surface_create(display,w,DefaultVisual(display,screen),WIDTH,HEIGHT);
   cairo_xlib_surface_set_size(surface,WIDTH,HEIGHT);
   ctx = cairo_create(surface);
-
-  //button code
-  continue_flag = true;
-  buttons.push_back(new Button(WIDTH-60, HEIGHT-60,40,40,
-    &Graphical::quit,
-    cairo_image_surface_create_from_png("images/quit_button.png")));
-  buttons.push_back(new Button(WIDTH-100,HEIGHT-60,40,40,
-    &Graphical::step,
-    cairo_image_surface_create_from_png("images/step_button.png")));
-  buttons.push_back(new Button(WIDTH-140,HEIGHT-60,40,40,
-    &Graphical::addNode,
-    cairo_image_surface_create_from_png("images/node_button.png")));
-  buttons.push_back(new Button(WIDTH-180,HEIGHT-60,40,40,
-    &Graphical::addResistor,
-    cairo_image_surface_create_from_png("images/node_button.png")));
-
-  current_drag = NULL;
 }
 
 Graphical::~Graphical(){
   cairo_destroy(ctx);
   cairo_surface_destroy(surface);
   XCloseDisplay(display);
-
-  for(int i = 0; i < buttons.size(); i++)
-    delete buttons[i];
-}
-
-void Graphical::step(){
-  circuit->step();
-}
-
-void Graphical::quit(){
-  continue_flag = false;
-}
-
-void Graphical::addNode(){
-  Node* new_node = new Node();
-  new_node->drag_to(WIDTH/2,HEIGHT/2); //put the new node in the middle of the screen
-
-  circuit->nodes.push_back(new Node()); // add to nodes
-}
-
-void Graphical::addResistor(){
-  //count selected nodes
-  int count = 0;
-  std::vector<Node*> nodes;
-  for(auto n : circuit->nodes)
-    if(n->selected){
-      count++;
-      nodes.push_back(n);
-    }
-  if(count != 2)
-    throw std::runtime_error("add resistor requires only 2 selected nodes");
-  new Resistor(100,nodes[0],nodes[1]);
 }
 
 void Graphical::draw_text(int x, int y, double theta, std::string resvalue){
@@ -297,96 +247,47 @@ void Graphical::draw_node(Node* n){
   cairo_stroke(ctx);
 }
 
-void Graphical::draw_circuit(){
 
-//draw each node
-  for(int i = 0; i < circuit->nodes.size(); i++){
-    if(circuit->nodes[i]->selected)
+void Graphical::draw_circuit(const Circuit* c){
+  //draw each node
+  for(Node* n : c->nodes){
+    if(n->selected) //draw it in green
       cairo_set_source_rgb(ctx,0,1,0);
-    else
+    else //draw it in blue
       cairo_set_source_rgb(ctx,0,0,1);
-    draw_node(circuit->nodes[i]);
+    //call the draw node
+    draw_node(n);
   }
 
-  cairo_set_source_rgb(ctx,0,0,0);
-  for(int i = 0; i < circuit->nodes.size(); i++){
-    for(int j = i+1; j < circuit->nodes.size(); j++){
-      Node* n = circuit->nodes[i];
-      Node* m = circuit->nodes[j];
-      //count all the resistors between n and m
-      int num_resistors = 0;
-      std::vector<Resistor*> parallels;
-      for(int k = 0; k < n->resistors.size(); k++){
-        Resistor* r = n->resistors[k];
-        if(  (r->a == n && r->b == m)
-          || (r->b == n && r->a == m)){
-          num_resistors++;
-          parallels.push_back(r);
-        }
+  //draw each resistor
+  cairo_set_source_rgb(ctx,0,0,0); //resistors are back in black
+
+  //be trying to fit line into half a terminal window on 13" like
+  for(int i=0;i<c->nodes.size();i++)for(int j=i+1;j<c->nodes.size();j++){
+  //for all combinations of nodes. This isn't efficient, but it works
+    Node* n = c->nodes[i];
+    Node* m = c->nodes[j]; //to save characters.
+    //count all resistors between n and m
+    int num_resistors = 0;
+    std::vector<Resistor*> parallels;
+    for(int k = 0; k < n->resistors.size(); k++){
+      Resistor* r = n->resistors[k];
+      if(  (r->a == n && r->b == m)
+        || (r->b == n && r->a == m)){
+        num_resistors++;
+        parallels.push_back(r);
       }
-      if(num_resistors == 0)
-        break;
-      if(num_resistors == 1)
-        draw_resistor(parallels[0]);
-      else
-        draw_resistors_parallel(parallels);
     }
-  }
-
+    if(num_resistors == 0)
+      break; //draw nothing
+    else if(num_resistors == 1)
+      draw_resistor(parallels[0]); //draw a single resistor
+    else
+      draw_resistors_parallel(parallels);
+  } //end foreach node pair
 }
 
-void Graphical::draw(){
+void Graphical::draw_background(){
   cairo_set_source_rgb(ctx,1,1,1);
   cairo_paint(ctx);
-  cairo_set_source_rgb(ctx,0,0,0);
-
-  draw_circuit();
-  for(int i = 0; i < buttons.size(); i++)
-    buttons[i]->draw_button(ctx);
-  cairo_stroke(ctx);
-  cairo_surface_flush(surface);
-}
-
-void Graphical::loop(){
-//this is a great example of functionality that belongs in the controller
-  XEvent event;
-  int x,y;
-  while(1){ //main loop
-    draw();
-
-
-    //handle next event
-    XNextEvent(display,&event);
-    switch(event.type){
-      case ButtonPress:
-      x = event.xbutton.x;
-      y = event.xbutton.y;
-      for(int i = 0; i < buttons.size(); i++) //iterate over each button
-        if(buttons[i]->is_inside(x,y)){
-          current_drag = buttons[i];
-          buttons[i]->call_function(this);
-          if(!continue_flag) return; //this is for the quit function
-        }
-      for(int i = 0; i < circuit->nodes.size(); i++){ //iterate over every node so we can drag
-        Node* n = circuit->nodes[i];
-        if((x-n->x)*(x-n->x)+(y-n->y)*(y-n->y) < 100){ //if we clicked the node
-//TODO
-          if(current_drag != n)
-            //toggle selected on that node
-            n->selected ^= 1;
-          current_drag = n;
-        } 
-      }
-      break;
-
-      case ButtonRelease:
-        current_drag = NULL;
-        break;
-
-      case MotionNotify:
-        if(current_drag != NULL)
-          current_drag->drag_to(event.xmotion.x,event.xmotion.y);
-        break;
-    }
-  }
 }

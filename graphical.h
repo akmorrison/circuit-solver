@@ -14,11 +14,9 @@ class Button;
 class Graphical{
   public:
 
-  Graphical(Circuit* c,int width, int height);
+  Graphical(int width, int height);
   ~Graphical();
 
-  Circuit *circuit;
-  std::vector<Button*> buttons;
   int WIDTH,HEIGHT;
 
   Display* display;
@@ -26,22 +24,14 @@ class Graphical{
   Window w;
   cairo_t *ctx;
   cairo_surface_t *surface;
-  bool continue_flag;
-  Draggable* current_drag;
-
-  void step();
-  void quit();
-  void addNode();
-  void addResistor();
 
   void draw_text(int x, int y, double theta, std::string resvalue);
   void draw_squigley(int x1, int y1, int x2, int y2, int ascent, double resistance);
   void draw_resistor(Resistor* r);
   void draw_resistors_parallel(std::vector<Resistor*> parallels);
   void draw_node(Node* n);
-  void draw_circuit();
-  void draw();
-  void loop();
+  void draw_circuit(const Circuit* c);
+  void draw_background();
 };
 
 

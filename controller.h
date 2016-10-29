@@ -3,18 +3,27 @@
 #include"circuit.h"
 #include"graphical.h"
 #include"button.h"
+#include"draggable.h"
 
+class Graphical;
+class Circuit;
+class Button;
 
 class Controller{
+  public:
   Circuit *c;
   Graphical *g;
   std::vector<Button*> buttons;
+  Draggable* current_drag;
 
   Controller();
   ~Controller();
 
   bool continue_flag; //if this is false, loop() doesn't run
   void loop();
+
+  bool checkall_buttons(int x, int y); //mouseclick handler
+  bool checkall_nodes(int x, int y); //you guessed it, another click handler
 
   void button_quit();
   void button_step();

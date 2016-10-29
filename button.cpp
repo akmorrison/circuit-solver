@@ -1,5 +1,6 @@
 #include "button.h"
 #include "graphical.h"
+#include "controller.h"
 #include<iostream>
 #include<cairo/cairo.h>
 
@@ -8,6 +9,10 @@
 Button::Button(){
   x = y = 0;
   width = height = 50; //because why not
+}
+
+Button::~Button(){
+  cairo_surface_destroy(disp_image);
 }
 
 bool Button::is_inside(int button_x, int button_y){
@@ -35,8 +40,8 @@ void Button::draw_button(cairo_t* ctx){
 }
 
 
-void Button::call_function(Graphical* g){
-  (g->*func)();
+void Button::call_function(Controller* c){
+  (c->*func)();
 }
 
 void Button::drag_to(int new_x, int new_y){
