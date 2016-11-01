@@ -11,11 +11,14 @@ class Button : public Draggable{
     int x,y;
     int width, height;
     void (Controller::* func)();
+    std::string image_path;
     cairo_surface_t* disp_image;
 
     Button();
     ~Button();
-    Button(int xval, int yval, int w, int h, void (Controller::* f)(), cairo_surface_t* image) :x(xval),y(yval),width(w),height(h),func(f),disp_image(image) {}  ;
+    Button(int xval, int yval, int w, int h, void 
+          (Controller::* f)(), std::string image) :
+             x(xval),y(yval),width(w),height(h),func(f),image_path(image) {} ;
 
 
     bool is_inside(int button_x, int button_y);

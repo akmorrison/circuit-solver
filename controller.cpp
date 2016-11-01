@@ -22,20 +22,16 @@ Controller::Controller(){
 
   buttons.push_back(new Button(WIDTH-60,HEIGHT-60,40,40,
                                &Controller::button_quit,
-                               cairo_image_surface_create_from_png(
-                                 "images/quit_button.png")));
+                                 "images/quit_button.png"));
   buttons.push_back(new Button(WIDTH-110,HEIGHT-60,40,40,
                                &Controller::button_step,
-                               cairo_image_surface_create_from_png(
-                                 "images/step_button.png")));
+                                 "images/step_button.png"));
   buttons.push_back(new Button(WIDTH-160,HEIGHT-60,40,40,
                                &Controller::button_add_node,
-                               cairo_image_surface_create_from_png(
-                                 "images/node_button.png")));
+                                 "images/node_button.png"));
   buttons.push_back(new Button(WIDTH-210,HEIGHT-60,40,40,
                                &Controller::button_add_resistor,
-                               cairo_image_surface_create_from_png(
-                                 "images/resi_button.png")));
+                                 "images/resi_button.png"));
 }
 
 Controller::~Controller(){
@@ -158,10 +154,18 @@ void Controller::loop(){
     //if we're in text entry mode, draw a textbox
     if(focus == enter_text)
       g->draw_textbox(textbox_x, textbox_y, current_string);
+    //draw the buttons
+    buttons[0]->draw_button(g->ctx);
+    buttons[1]->draw_button(g->ctx);
+    buttons[2]->draw_button(g->ctx);
+    buttons[3]->draw_button(g->ctx);
+//    for(int i = buttons.size(); i > 0;)
+  //   buttons[--i]->draw_button(g->ctx);
 
   //event handling
     //get Xevent
     XNextEvent(g->display,&event); //this waits until next event
+
     //case by case possibilities
     switch(event.type){
       case ButtonPress:
@@ -222,8 +226,34 @@ void Controller::loop(){
         //user typed a key. if we're in enter_text focus, push key on string
         unsigned int key = event.xkey.keycode;
         if(focus == enter_text){
-          current_string.push_back(keycode_to_char(key));
+          switch(key){
+            case 44: case 61: //44 is return key, 61 is escape
+              editing_resistance->update_resistance(current_string);
+              //delete everything from current_string
+              current_string.clear();
+              //set editing resistance to null
+              editing_resistance = NULL;
+              textbox_x = textbox_y = -1;
+              focus = no_focus;
+              break;
+          case 26:case 27:case 28:case 29:case 30:case 31:
+          case 33:case 34:case 36:case 37:
+            //keycodes for numbers
+            current_string.push_back(keycode_to_char(key));
+            break;
+          case 59: //backspace key
+            if(current_string.size() > 0){
+              current_string.pop_back();
+              break;
+            }
+          default: //user enterred invalid key
+            //delete everything. burn the world. Leave nothing alive
+            current_string.clear();
+            editing_resistance = NULL;
+            textbox_x = textbox_y=-1;
+            focus = no_focus;
         }
+      }
     }
   }
 }

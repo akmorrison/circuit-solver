@@ -21,13 +21,30 @@ bool Button::is_inside(int button_x, int button_y){
 }
 
 void Button::draw_button(cairo_t* ctx){
+
   cairo_save(ctx);
-  cairo_set_source_surface(ctx,disp_image,x,y);
+//print the surface type for debug purposes
+  cairo_surface_t* surf = 
+    cairo_image_surface_create_from_png(image_path.c_str());
+  cairo_set_source_surface(ctx,surf,x,y);
   cairo_paint(ctx);
+  cairo_status_t status = cairo_surface_status(surf);
+  if(status != CAIRO_STATUS_SUCCESS){
+    std::cout << "error happened! Oh noes!" << std::endl;
+    std::cout << cairo_status_to_string(status) << std::endl;
+  }
+  cairo_surface_destroy(surf);
+  //check for errors
+  status = cairo_status(ctx);
+  if(status != CAIRO_STATUS_SUCCESS){
+    std::cout << "error happened! Oh noes!" << std::endl;
+    std::cout << cairo_status_to_string(status) << std::endl;
+  }
+
   cairo_restore(ctx);
 
   int radius = 10; //radius of the rounded corners
-
+  cairo_set_source_rgb(ctx,0,0,0);
   cairo_new_sub_path(ctx);
   cairo_arc(ctx, x+width-radius, y+radius, radius, M_PI/-2,0); //tright
   cairo_arc(ctx, x+width-radius, y+height-radius, radius, 0,M_PI/2); //bright
