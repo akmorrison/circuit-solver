@@ -25,8 +25,8 @@ class Graphical{
   cairo_t *ctx;
   cairo_surface_t *surface;
 
-  void draw_text(int x, int y, double theta, std::string resvalue);
-  void draw_textbox(int x, int y, std::vector<char> str); //why is it a vector? 
+  void draw_text(int x, int y, double theta, std::string resvalux);
+  void draw_textbox(int x, int y, std::vector<char> str, char prefix); //why is it a vector? 
   void draw_squigley(int x1, int y1, int x2, int y2, int ascent, double resistance);
   void draw_resistor(Resistor* r);
   void draw_resistors_parallel(std::vector<Resistor*> parallels);

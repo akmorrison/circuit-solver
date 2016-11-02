@@ -17,6 +17,7 @@ Controller::Controller(){
   continue_flag = true;
   editing_resistance = NULL;
   textbox_x = textbox_y = 0;
+  prefix = 'o';
 
   //initialize buttons
   buttons.reserve(4);
@@ -190,7 +191,7 @@ void Controller::loop(){
     g->draw_circuit(c);
     //if we're in text entry mode, draw a textbox
     if(focus == enter_text)
-      g->draw_textbox(textbox_x, textbox_y, current_string);
+      g->draw_textbox(textbox_x, textbox_y, current_string, prefix);
     //draw the buttons
     buttons[0]->draw_button(g->ctx);
     buttons[1]->draw_button(g->ctx);
@@ -238,7 +239,7 @@ void Controller::loop(){
             n->selected = false;
           //if we were in enter_text mode, update resistor value
           if(focus == enter_text){
-            editing_resistance->update_resistance(current_string);
+            editing_resistance->update_resistance(current_string,prefix);
             //delete everything from current_string
             current_string.clear();
             //set editing resistance to null
@@ -269,7 +270,7 @@ void Controller::loop(){
         if(focus == enter_text){
           switch(key){
             case 44: case 61: //44 is return key, 61 is escape
-              editing_resistance->update_resistance(current_string);
+              editing_resistance->update_resistance(current_string, prefix);
               //delete everything from current_string
               current_string.clear();
               //set editing resistance to null
@@ -278,9 +279,18 @@ void Controller::loop(){
               focus = no_focus;
               break;
           case 26:case 27:case 28:case 29:case 30:case 31:
-          case 33:case 34:case 36:case 37:
-            //keycodes for numbers
+          case 33:case 34:case 36:case 37:case 55:
+            //keycodes for numbers and decimals
             current_string.push_back(keycode_to_char(key));
+            break;
+          case 48: //k key
+            prefix = 'k';
+            break;
+          case 54: //m key
+            prefix = 'm';
+            break;
+          case 39: // o key
+            prefix = 'o';
             break;
           case 59: //backspace key
             if(current_string.size() > 0){

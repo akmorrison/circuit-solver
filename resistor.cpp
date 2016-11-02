@@ -22,7 +22,7 @@ void Resistor::get_textbox_xy(int& x, int& y){
   y = (a->y + b->y)/2;
 }
 
-void Resistor::update_resistance(std::vector<char> str){
+void Resistor::update_resistance(std::vector<char> str, char prefix){
   //take a string in the form of a std::vector of chars
   //if it's a legal resistance value, make this resistor value that
   bool pre_decimal = true;
@@ -43,6 +43,10 @@ void Resistor::update_resistance(std::vector<char> str){
   }
   for(int i = 0; i < digits_after_decimal; i++)
     new_resistance /= 10.0;
+  if(prefix == 'k')
+    new_resistance *= 1000;
+  else if(prefix == 'm')
+    new_resistance *= 1000000;
   resistance = new_resistance; //jesus that's some convoluted logic
 }
 

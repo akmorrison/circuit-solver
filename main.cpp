@@ -11,5 +11,12 @@
 int main(){
   Controller c;
 
+  c.add_node(); c.add_node();
+  c.set_node_pos(0,100,200);
+  c.set_node_pos(1,300,200);
+
+  c.add_resistor(0,1,10000);
+  c.add_resistor(0,1,10000);
+
   c.loop();
 }

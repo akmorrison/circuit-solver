@@ -28,6 +28,7 @@ class Controller{
   int textbox_x, textbox_y;
   char keycode_to_char(unsigned int keycode);
   Resistor* editing_resistance;
+  char prefix;
 
   Controller();
   ~Controller();

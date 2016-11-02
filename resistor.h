@@ -16,7 +16,7 @@ class Resistor{
   ~Resistor();
 
   void get_textbox_xy(int& x, int& y);
-  void update_resistance(std::vector<char> str);
+  void update_resistance(std::vector<char> str, char prefix);
 
   bool combine_series(Resistor* r);
   bool combine_parallel(Resistor* r);

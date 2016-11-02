@@ -55,10 +55,17 @@ void Graphical::draw_text(int x, int y, double theta, std::string resvalue){
   cairo_restore(ctx);
 }
 
-void Graphical::draw_textbox(int x, int y, std::vector<char> str){
+void Graphical::draw_textbox(int x, int y, std::vector<char> str, char prefix){
   //first, find the width and height of the text string
   cairo_text_extents_t extents;
   std::string new_str(str.begin(),str.end());
+  if(prefix == 'o')
+    new_str += " ohms";
+  else if(prefix == 'k')
+    new_str += " Kohms";
+  else if(prefix == 'm')
+    new_str += " Mohms";
+
   int text_width, text_height;
   cairo_text_extents(ctx,new_str.c_str(),&extents);
 
@@ -126,7 +133,14 @@ void Graphical::draw_squigley(int x1, int y1, int x2, int y2, int ascent, double
 
  
   std::stringstream ss;
-  ss << std::fixed << std::setprecision(2) << resistance << " ohms";
+  if(resistance > 9999999)
+    ss << (int) (resistance / 1000000) << " Mohms";
+  if(resistance > 9999)
+    ss << (int) resistance / 1000 << " Kohms";
+  else if((resistance-(int)resistance) < 0.01)
+    ss << std::fixed << std::setprecision(0) << resistance << " ohms";
+  else
+    ss << std::fixed << std::setprecision(2) << resistance << " ohms";
  
   if(ycomp < 0){
     ycomp *= -1;
