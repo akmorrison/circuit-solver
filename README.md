@@ -72,7 +72,7 @@ However I feel this program is young enough (earliest of early alphas I guess?) 
 
 ####3. It's a tangled mess of spaghetti code which has almost no comments or documentation making it entirely unreadable and impossible to maintain
 
-   That might be slightly dramatic. It's currently not that bad, and almost follows an MVC model with the `Circuit` class taking care of all the backend math and such and `Graphical` dealing with all the input and display stuff, but I'd like to split the latter into a true view and controller. Documentation does need work, but is not as pressing as the bugs above
+   That might be slightly dramatic. It's currently not that bad, and almost follows an MVC model with the `Circuit` class taking care of all the backend math and such, `Controller` handling all the input and program flow, and `Graphical` dealing with all the display stuff. Documentation does need work, but is not as pressing as the bugs above
 
 ####4. It's only resistors/poorly named
 
