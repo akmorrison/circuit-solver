@@ -57,15 +57,26 @@ void Graphical::draw_text(int x, int y, double theta, std::string resvalue){
 
 void Graphical::draw_textbox(int x, int y, std::vector<char> str){
   //first, find the width and height of the text string
+  cairo_text_extents_t extents;
   std::string new_str(str.begin(),str.end());
   int text_width, text_height;
-  text_width = 100;
-  text_height = 30;
+  cairo_text_extents(ctx,new_str.c_str(),&extents);
+
+  int text_vertical_pad = 5;
+  int text_horizontal_pad = 5;
+
+  text_width = extents.width + 2*text_horizontal_pad;
+  text_height = extents.height + 2*text_vertical_pad;
+
+  if(text_width < 100)
+    text_width = 100;
+  if(text_height < 20)
+    text_height = 20;
 
   //white rectangle
   cairo_rectangle(ctx,x,y,text_width,text_height);
   //fill in in white
-  cairo_set_source_rgb(ctx,1,1,1);
+  cairo_set_source_rgba(ctx,1,1,1,.7);
   cairo_fill(ctx);
 
 
@@ -76,7 +87,8 @@ void Graphical::draw_textbox(int x, int y, std::vector<char> str){
   cairo_rectangle(ctx,x,y,text_width,text_height);
   cairo_stroke(ctx);
 
-  draw_text(x,y+text_height,0.0,new_str);
+  draw_text(x+text_horizontal_pad,y+text_height-text_vertical_pad,
+            0.0,new_str);
 }
 
 void Graphical::draw_squigley(int x1, int y1, int x2, int y2, int ascent, double resistance){
