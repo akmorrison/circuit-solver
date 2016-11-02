@@ -128,11 +128,14 @@ void Graphical::draw_squigley(int x1, int y1, int x2, int y2, int ascent, double
   std::stringstream ss;
   ss << std::fixed << std::setprecision(2) << resistance << " ohms";
  
+  if(ycomp < 0){
+    ycomp *= -1;
+    xcomp *= -1;
+  }  
   std::string resvalue = ss.str();
   int text_x = x1 + fabs(xcomp)*ascent;
   int text_y = y1 - fabs(ycomp)*ascent;
 
-  
   draw_text(text_x,text_y,atan(xcomp/ycomp), resvalue);
 }
 

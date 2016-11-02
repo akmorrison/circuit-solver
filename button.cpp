@@ -27,6 +27,7 @@ void Button::draw_button(cairo_t* ctx){
   cairo_surface_t* surf = 
     cairo_image_surface_create_from_png(image_path.c_str());
   cairo_set_source_surface(ctx,surf,x,y);
+  cairo_surface_flush(surf);
   cairo_paint(ctx);
   cairo_status_t status = cairo_surface_status(surf);
   if(status != CAIRO_STATUS_SUCCESS){

@@ -31,6 +31,25 @@ hitting the step button again will combine the two now series resistors
 
 ![alt text](./screenshots/oct_14_2016/step_demo_3.png "step demo 3")
 
+november 2nd update
+-------------------
+figured I should update with some new screenshots. Since the nodes are draggable, I mocked up a non-quite-straight 3 node 3 resistor circuit
+
+![alt text](./screenshots/nov_2_2016/add_resistor_demo_1.png "add resistor demo 1")
+
+By selecting two of the nodes, they show up in green. Since I have 2 nodes selected, I can add a 100ohm resistor between them by clicking the "resist" button. Like so:
+
+![alt text](./screenshots/nov_2_2016/add_resistor_demo_2.png "add resistor demo 2")
+
+However, just adding 100ohm resistors is not overwhelming useful, because (as I recently learned), scientists have discovered a way to make resistors with other resistance values. In order to add that capability to the program, I added a feature where you can type in a new resistance value by clicking on a resistor. So If I click the new resistor, this box appears, and I can type in a new resistance value.
+
+![alt text](./screenshots/nov_2_2016/change_resistor_demo_1.png "change resistance demo 1")
+
+Hitting enter updates the resistance value of that resistor, and as of recently, works with parallel resistors. As this demo shows.
+
+![alt text](./screenshots/nov_2_2016/change_resistor_demo_2.png "change resistance demo 2")
+
+With these 4 buttons, you can solve any resistor mass problem, so I call this program feature complete as of now. Moving forward, I'd like to add capability to solve for node voltage, but before that there are a few performance tweaks that need to be made, as most of the algorithms are hilariously inneficient. So that's what I'm working on now.
 
 current problems/things to fix
 ------------------------------

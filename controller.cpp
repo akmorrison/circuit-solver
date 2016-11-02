@@ -196,6 +196,8 @@ void Controller::loop(){
     buttons[1]->draw_button(g->ctx);
     buttons[2]->draw_button(g->ctx);
     buttons[3]->draw_button(g->ctx);
+    buttons[3]->draw_button(g->ctx);
+
 //    for(int i = buttons.size(); i > 0;)
   //   buttons[--i]->draw_button(g->ctx);
 
@@ -225,7 +227,9 @@ void Controller::loop(){
         if( (clicked_resistor = checkall_resistors(x,y)) != NULL){
           focus = enter_text;
           editing_resistance = clicked_resistor;
-          clicked_resistor->get_textbox_xy(textbox_x,textbox_y);
+          textbox_x = x;
+          textbox_y = y;
+          //clicked_resistor->get_textbox_xy(textbox_x,textbox_y);
           break;
         }
         //at this point, we assume the user clicked whitespace
