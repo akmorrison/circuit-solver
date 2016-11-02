@@ -4,6 +4,7 @@
 #include"graphical.h"
 #include"button.h"
 #include"draggable.h"
+#include<cmath>
 
 Controller::Controller(){
   const int WIDTH = 400;
@@ -66,7 +67,7 @@ bool Controller::checkall_nodes(int x, int y){ //handle mouse clicks
   return false;
 }
 
-Resistor* Controller::checkall_resistors(int x, int y){
+Resistor* Controller::checkall_resistors(int mouse_x, int mouse_y){
 /*
 this logic may get somewhat convoluted. So here's my plan
 for each pair of nodes. Count the resistors between them.
@@ -94,9 +95,45 @@ get a competent programmer to do this shit
     if(parallels.size() == 1){
       int mid_x = (n->x + m->x)/2;
       int mid_y = (n->y + m->y)/2;
-      double distance = (x-mid_x)*(x-mid_x) + (y-mid_y)*(y-mid_y);
+      double distance = (mouse_x-mid_x)*(mouse_x-mid_x) + 
+                        (mouse_y-mid_y)*(mouse_y-mid_y);
       if(distance < 20*20)
         return parallels[0];
+    }
+    else if(parallels.size() > 1){
+      int mid_x = (n->x+m->x)/2;
+      int mid_y = (n->y+m->y)/2;
+      //vector pointing to the first resistor from midpoint is -1/(y-y)/(x-x)
+      double ypart,xpart;
+      if(m->y == n->y){ //nodes are stacked horizontally
+        xpart = 0.0;
+        ypart = 1.0;
+      }
+      else if(m->x == n->x){ //nodes are stacked vertically
+        xpart = 1.0;
+        ypart = 0.0;
+      }
+      else{
+        xpart =  1.0;
+        ypart = (n->x-m->x)/(m->y-n->y);
+        //create unit vector of [xpart,ypart]. Yes i know there's a better way
+        double magnitude = sqrt(xpart*xpart+ypart*ypart);
+        xpart /= magnitude;
+        ypart /= magnitude;
+      }
+      int distance_between_resistors = 60;
+      int x1 = mid_x - xpart*(parallels.size()-1)/2.0*distance_between_resistors;
+      int y1 = mid_y - ypart*(parallels.size()-1)/2.0*distance_between_resistors;
+      for(int i = 0; i < parallels.size(); i++){
+        //x,y of parallels[i] is x1,y1
+        double square_d = (mouse_x-x1)*(mouse_x-x1) +
+                          (mouse_y-y1)*(mouse_y-y1);
+        if(square_d < 900)
+          return parallels[i];
+        x1 += xpart*distance_between_resistors;
+        y1 += ypart*distance_between_resistors;
+      }
+        
     }
   }
   return NULL;
