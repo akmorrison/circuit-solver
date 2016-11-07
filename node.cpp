@@ -1,4 +1,5 @@
 #include"node.h"
+#include "component.h"
 #include<vector>
 #include<algorithm>
 #include<iostream>
@@ -10,17 +11,17 @@ Node::Node(){
 
 Node::~Node(){
 //  x = y = 0;
-  while(resistors.size()){
-    delete resistors[0];
+  while(components.size()){
+    delete components[0];
   }
 }
 
 bool Node::collapse(){
-  if(resistors.size() == 2){
-    //TODO, make sure the resistors aren't in parallel. That would
+  if(components.size() == 2 && (components[0]->type == components[1]->type)){
+    //TODO, make sure the components aren't in parallel. That would
     //screw some stuff up.
 
-    resistors[0]->combine_series(resistors[1]);
+    components[0]->combine_series(components[1]);
     return true;
 
   }
@@ -29,11 +30,11 @@ bool Node::collapse(){
 
 bool Node::combine(){
   bool return_val = false;
-  for(int i = 0; i < resistors.size()-1; i++){
-    for(int j = i+1; j < resistors.size(); j++){
-      if(resistors[i]->isParallel(resistors[j])){
-        resistors[i]->combine_parallel(resistors[j]);
-        resistors.erase(resistors.begin()+j--);
+  for(int i = 0; i < components.size()-1; i++){
+    for(int j = i+1; j < components.size(); j++){
+      if(components[i]->isParallel(components[j])){
+        components[i]->combine_parallel(components[j]);
+        components.erase(components.begin()+j--);
         return_val = false;
       }
     }
@@ -41,14 +42,14 @@ bool Node::combine(){
   return return_val;
 }
 
-void Node::addResistor(Resistor* r){
-  resistors.push_back(r);
+void Node::add_component(Component* r){
+  components.push_back(r);
 }
 
-void Node::remove_resistor(Resistor* r){
-  std::vector<Resistor*>::iterator position = std::find(resistors.begin(), resistors.end(), r);
-  if(position != resistors.end()){
-    resistors.erase(position);
+void Node::remove_component(Component* c){
+  std::vector<Component*>::iterator position = std::find(components.begin(), components.end(), r);
+  if(position != components.end()){
+    components.erase(position);
   }
 }
 
