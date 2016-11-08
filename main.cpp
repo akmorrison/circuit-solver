@@ -16,7 +16,8 @@ int main(){
   c.set_node_pos(1,300,200);
 
   c.add_resistor(0,1,10000);
-  c.add_resistor(0,1,10000);
+  c.add_capacitor(0,1,10000);
+  c.add_inductor(0,1,10000);
 
   c.loop();
 }

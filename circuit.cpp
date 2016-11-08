@@ -3,7 +3,7 @@
 #include<vector>
 #include<algorithm>
 #include"node.h"
-#include"resistor.h"
+#include"component.h"
 
 Circuit::Circuit(){
 
@@ -43,10 +43,22 @@ void Circuit::resize_nodes(int n){
 
 void Circuit::add_resistor(int a, int b, double resistance){
   if(a >= nodes.size() || b >= nodes.size() || a == b){
-    std::cout << "node out of range\n";
-     return; //if you're out of range, just stop
+    throw std::invalid_argument("node out of range");
   }
   Resistor* new_resistor = new Resistor(resistance,nodes[a],nodes[b]);
+}
+
+void Circuit::add_capacitor(int a, int b, double capacitance){
+  if(a >= nodes.size() || b >= nodes.size() || a == b){
+    throw std::invalid_argument("node out of range");
+  }
+  new Capacitor(capacitance, nodes[a], nodes[b]);
+}
+
+void Circuit::add_inductor(int a, int b, double inductance){
+  if(a >= nodes.size() || b >= nodes.size() || a == b)
+    throw std::invalid_argument("node out of range");
+  new Inductor(inductance, nodes[a], nodes[b]);
 }
 
 int Circuit::index_of_node(Node* a){
@@ -69,57 +81,56 @@ void Circuit::add_node(){
 }
 
 bool Circuit::step(){
-  //search for all series resistors
-  for(int i = 0; i < nodes.size(); i++){
-    Node* n = nodes[i];
-    if(n->resistors.size() == 2 && !(n->resistors[0]->isParallel(n->resistors[1]))){
-      //make pointers to the two resistors. Add Resistances
-      Node *a,*b;
-      a = ((n->resistors[0]->a != n)
-           ? n->resistors[0]->a
-           : n->resistors[0]->b);
-      b = ((n->resistors[1]->a != n)
-           ? n->resistors[1]->a
-           : n->resistors[1]->b);
-      double new_resistance = n->resistors[0]->resistance + n->resistors[1]->resistance;
-      add_resistor(index_of_node(a),index_of_node(b),new_resistance);
+  //find the first components that are in series
+  //this is true if a node has two components, both of the same type
+  //and the two components aren't in parallel
+  for(Node* n : nodes){
+    if(n->components.size() == 2 && 
+      (n->components[0]->type == n->components[1]->type) && 
+      !(n->components[0]->isParallel(n->components[1]))){
+      //two components of matching types are in series
+      n->components[0]->combine_series(n->components[1]);
+      delete n->components[1];
+      //there's now 0 things connected to n. It can die
       remove_node(n);
       return true;
     }
   }
-  //search for all parallel resistors
-  for(int i = 0; i < nodes.size(); i++){
-    Node* n = nodes[i]; //node we're currently looking at
-    //search every pair of resistors, check if they're parallel
-    for(int i = 0; i < n->resistors.size()-1; i++){
-      for(int j = i+1; j < n->resistors.size(); j++){ //resistors i and j
-        if(n->resistors[i]->isParallel(n->resistors[j])){
-          Resistor *r = n->resistors[i], *s = n->resistors[j];
-          Node* m = (r->a == n) ? r->b : r->a;
-          //r and s are in parallel between n and m
-          double new_resistance = (r->resistance*s->resistance)/(r->resistance+s->resistance);
-          new Resistor(new_resistance,n,m);
-          delete r;
-          delete s;
 
+
+  //find the first components that are in series
+  //for this, for each pair of nodes, if there are two components
+  //of the same type between them, they are in l
+
+  for(int i = 0; i < nodes.size(); i++)for(int j = i+1; j < nodes.size();j++){
+    //foreach pair of nodes
+    Node* n = nodes[i];
+    Node* m = nodes[j];
+    //make a vector of all components between n and m
+    std::vector<Component*> parallels;
+    for(Component* c : n->components){
+      if(c->a == m || c->b == m)
+        parallels.push_back(c);
+    }
+    //find out if there are two components in the same type
+    for(int k = 0; k < parallels.size(); k++)
+      for(int l = k+1; l < parallels.size(); l++)
+        if(parallels[k]->type == parallels[l]->type){
+          //combine those two as parallel
+          parallels[k]->combine_parallel(parallels[l]);
+          //destroy the abstract notion of parallels[l]
+          delete parallels[l];
           return true;
         }
-      }
-    }
   }
   return false;
 }
+
 
 void Circuit::minimize(){
   while(step());
 }
 
-double Circuit::equiv_resistance(){
-  Node* n = nodes[0];
-  Resistor* r = n->resistors[0];
-  double res = r->resistance;
-  return res;
-}
 
 std::ostream& operator<<(std::ostream& out, const Circuit& c){
   out << c.nodes.size();

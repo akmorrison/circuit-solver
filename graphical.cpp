@@ -153,51 +153,22 @@ void Graphical::draw_squigley(int x1, int y1, int x2, int y2, int ascent, double
   draw_text(text_x,text_y,atan(xcomp/ycomp), resvalue);
 }
 
-void Graphical::draw_resistor(Resistor* r){
-  int x1,y1,x2,y2;
-  x1 = r->a->x;
-  y1 = r->a->y;
-  x2 = r->b->x;
-  y2 = r->b->y;
+void Graphical::draw_plates(int x1,int y1,int x2,int y2,int ascent,double capacitance){
 
-  int distance = (int) sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
 
-  if(distance > 100){
-    double temp = 100.0/distance;
-    int new_x1, new_x2, new_y1,new_y2,dx,dy;
-    dx = x2-x1;
-    dy = y2-y1;
-    new_x1 = x1+(dx/2-temp*dx/2);
-    new_x2 = x2-(dx/2-temp*dx/2);
-    new_y1 = y1+(dy/2-temp*dy/2);
-    new_y2 = y2-(dy/2-temp*dy/2);
-
-    //draw the first line
-    cairo_move_to(ctx,x1,y1);
-    cairo_line_to(ctx,new_x1,new_y1);
-    //draw the second line
-    cairo_move_to(ctx,x2,y2);
-    cairo_line_to(ctx,new_x2,new_y2);
-
-    x1 = new_x1;
-    x2 = new_x2;
-    y1 = new_y1;
-    y2 = new_y2;
-
-  }
-
-  int ascent = 20;
-  draw_squigley(x1,y1,x2,y2,ascent,r->resistance);
-  cairo_stroke(ctx);
 }
 
-void Graphical::draw_resistors_parallel(std::vector<Resistor*> parallels){
-  Resistor* r = parallels[0]; //used for finding nodes
+void Graphical::draw_loopy(int x1,int y1,int x2,int y2,int ascent,double inductance){
+
+}
+
+void Graphical::draw_components_parallel(std::vector<Component*> parallels){
+  Component* c = parallels[0]; //used for finding nodes
   int x1,y1,x2,y2;
-  x1 = r->a->x;
-  y1 = r->a->y;
-  x2 = r->b->x;
-  y2 = r->b->y;
+  x1 = c->a->x;
+  y1 = c->a->y;
+  x2 = c->b->x;
+  y2 = c->b->y;
   int distance = (int) sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
 
   //the total distance of the resistor should be less than
@@ -290,7 +261,12 @@ void Graphical::draw_resistors_parallel(std::vector<Resistor*> parallels){
     yt1 = ystart1+(2*ascent+pad)*ypart*i;
     xt2 = xstart2+(2*ascent+pad)*xpart*i;
     yt2 = ystart2+(2*ascent+pad)*ypart*i;
-    draw_squigley(xt1,yt1,xt2,yt2,ascent,parallels[i]->resistance);
+    if(parallels[i]->type == RESISTOR)
+      draw_squigley(xt1,yt1,xt2,yt2,ascent,parallels[i]->weight);
+    else if(parallels[i]->type == CAPACITOR)
+      draw_plates(xt1,yt1,xt2,yt2,ascent, parallels[i]->weight);
+    else if(parallels[i]->type == INDUCTOR)
+      draw_loopy(xt1,yt1,xt2,yt2,ascent, parallels[i]->weight);
   }
 
 }
@@ -322,22 +298,20 @@ void Graphical::draw_circuit(const Circuit* c){
     Node* n = c->nodes[i];
     Node* m = c->nodes[j]; //to save characters.
     //count all resistors between n and m
-    int num_resistors = 0;
-    std::vector<Resistor*> parallels;
-    for(int k = 0; k < n->resistors.size(); k++){
-      Resistor* r = n->resistors[k];
+    int num_components = 0;
+    std::vector<Component*> parallels;
+    for(int k = 0; k < n->components.size(); k++){
+      Component* r = n->components[k];
       if(  (r->a == n && r->b == m)
         || (r->b == n && r->a == m)){
-        num_resistors++;
+        num_components++;
         parallels.push_back(r);
       }
     }
-    if(num_resistors == 0)
+    if(num_components == 0)
       break; //draw nothing
-    else if(num_resistors == 1)
-      draw_resistor(parallels[0]); //draw a single resistor
     else
-      draw_resistors_parallel(parallels);
+      draw_components_parallel(parallels);
   } //end foreach node pair
 }
 

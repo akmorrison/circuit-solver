@@ -47,7 +47,7 @@ void Node::add_component(Component* r){
 }
 
 void Node::remove_component(Component* c){
-  std::vector<Component*>::iterator position = std::find(components.begin(), components.end(), r);
+  std::vector<Component*>::iterator position = std::find(components.begin(), components.end(), c);
   if(position != components.end()){
     components.erase(position);
   }

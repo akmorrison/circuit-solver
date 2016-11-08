@@ -2,6 +2,10 @@
 #include "node.h"
 #include <vector>
 
+Component::~Component(){
+  a->remove_component(this);
+  b->remove_component(this);
+}
 
 bool Component::isParallel(Component* c){
   return( (c->a == a && c->b == b) ||
@@ -10,13 +14,13 @@ bool Component::isParallel(Component* c){
 
 Resistor::Resistor(double r){
   type = RESISTOR;
-  weight.resistance = r;
+  weight = r;
   a = b = NULL;
 }
 
 Resistor::Resistor(double r, Node* n, Node* m){
   type = RESISTOR;
-  weight.resistance = r;
+  weight = r;
   a = n;
   b = m;
   a->add_component(this);
@@ -53,7 +57,7 @@ void Resistor::update_weight(std::vector<char> str, char prefix){
     new_resistance *= 1000;
   else if(prefix == 'm')
     new_resistance *= 1000000;
-  weight.resistance = new_resistance; //jesus that's some convoluted logic
+  weight = new_resistance; //jesus that's some convoluted logic
 }
 
 bool Resistor::combine_series(Component* c){
@@ -74,7 +78,7 @@ bool Resistor::combine_series(Component* c){
   else
     downstream = c->a;
   (a == upstream) ? b = downstream : a = downstream;
-  c->weight.resistance = 0;
+  c->weight = 0;
   return true;
 }
 
@@ -84,22 +88,22 @@ bool Resistor::combine_parallel(Component* c){
     throw std::runtime_error("can't combine mismatched components");
 
   //set this's resistance to (c->r*r/(c->r+r)), set c's resistance to inf
-  weight.resistance = (c->weight.resistance * weight.resistance) /
-                      (c->weight.resistance + weight.resistance);
+  weight = (c->weight * weight) /
+                      (c->weight + weight);
 
-  c->weight.resistance = std::numeric_limits<double>::infinity();
+  c->weight = std::numeric_limits<double>::infinity();
   return true;
 }
 
 Capacitor::Capacitor(double c){
   type = CAPACITOR;
-  weight.capacitance = c;
+  weight = c;
   a = b = NULL;
 }
 
 Capacitor::Capacitor(double c, Node* n, Node* m){
   type = CAPACITOR;
-  weight.capacitance = c;
+  weight = c;
   a = n;
   b = m;
   a->add_component(this);
@@ -153,7 +157,7 @@ void Capacitor::update_weight(std::vector<char> str, char prefix){
       break;
   }
 
-  weight.capacitance = new_inductance; //jesus that's some convoluted logic
+  weight = new_capacitance; //jesus that's some convoluted logic
 }
 
 bool Capacitor::combine_series(Component* c){
@@ -175,8 +179,8 @@ bool Capacitor::combine_series(Component* c){
   (a = upstream) ? b = downstream : a = downstream;
 
   //capacitances add inversely in seies
-  weight.capacitance = (c->weight.capacitance * weight.capacitance) /
-                       (c->weight.capacitance + weight.capacitance);
+  weight = (c->weight * weight) /
+                       (c->weight + weight);
 
 
   //don't touch c's capacitance
@@ -188,22 +192,22 @@ bool Capacitor::combine_parallel(Component* c){
     throw std::runtime_error("cannot combine mismatched components");
 
   //add c's capacitance to this
-  weight.capacitance += c->weight.capacitance;
+  weight += c->weight;
   //set c's capacitance to 0
-  c->weight.capacitance = 0;
+  c->weight = 0;
 
   return true;
 }
 
 Inductor::Inductor(double l){
   type = INDUCTOR;
-  weight.inductance = l;
+  weight = l;
   a = b = NULL;
 }
 
 Inductor::Inductor(double l, Node* n, Node* m){
   type = INDUCTOR;
-  weight.inductance = l;
+  weight = l;
   a = n;
   b = m;
   a->add_component(this);
@@ -258,7 +262,7 @@ void Inductor::update_weight(std::vector<char> str, char prefix){
       break;
   }
 
-  weight.inductance = new_inductance; //jesus that's some convoluted logic
+  weight = new_inductance; //jesus that's some convoluted logic
 
 }
 
@@ -276,10 +280,10 @@ bool Inductor::combine_series(Component* c){
     downstream = c->b;
   else
     downstream = c->a;
-  if(upstream == a) ? b = downstream : a = downstream;
+  (upstream == a) ? b = downstream : a = downstream;
 
   //update weight.inductance. Inductors in series sum.
-  weight.inductance += c->weight.inductance;
+  weight += c->weight;
 
   return true;
   //don't change c's inductance, because it works differently than resistors
@@ -290,8 +294,8 @@ bool Inductor::combine_parallel(Component* c){
   if(c->type != INDUCTOR)
     throw std::runtime_error("cannot combine mismatched components");
 
-  weight.inductance = (c->weight.inductance * weight.inductance) /
-                      (c->weight.inductance + weight.inductance);
+  weight = (c->weight * weight) /
+                      (c->weight + weight);
   //don't set c's inductance, because unlike resistors, it doesn't go to infinity
   return true;
 }

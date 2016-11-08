@@ -15,7 +15,7 @@ Controller::Controller(){
 
   focus = no_focus;
   continue_flag = true;
-  editing_resistance = NULL;
+  editing_weight = NULL;
   textbox_x = textbox_y = 0;
   prefix = 'o';
 
@@ -68,7 +68,8 @@ bool Controller::checkall_nodes(int x, int y){ //handle mouse clicks
   return false;
 }
 
-Resistor* Controller::checkall_resistors(int mouse_x, int mouse_y){
+
+Component* Controller::checkall_components(int mouse_x, int mouse_y){
 /*
 this logic may get somewhat convoluted. So here's my plan
 for each pair of nodes. Count the resistors between them.
@@ -86,8 +87,8 @@ get a competent programmer to do this shit
     Node* m = c->nodes[j];
 
     //count resistors between n and m
-    std::vector<Resistor*> parallels;
-    for(Resistor *r : n->resistors)
+    std::vector<Component*> parallels;
+    for(Component *r : n->components)
       if(r->a == m || r->b == m)
         parallels.push_back(r);
 
@@ -122,17 +123,17 @@ get a competent programmer to do this shit
         xpart /= magnitude;
         ypart /= magnitude;
       }
-      int distance_between_resistors = 60;
-      int x1 = mid_x - xpart*(parallels.size()-1)/2.0*distance_between_resistors;
-      int y1 = mid_y - ypart*(parallels.size()-1)/2.0*distance_between_resistors;
+      int distance_between_components = 60;
+      int x1 = mid_x - xpart*(parallels.size()-1)/2.0*distance_between_components;
+      int y1 = mid_y - ypart*(parallels.size()-1)/2.0*distance_between_components;
       for(int i = 0; i < parallels.size(); i++){
         //x,y of parallels[i] is x1,y1
         double square_d = (mouse_x-x1)*(mouse_x-x1) +
                           (mouse_y-y1)*(mouse_y-y1);
         if(square_d < 900)
           return parallels[i];
-        x1 += xpart*distance_between_resistors;
-        y1 += ypart*distance_between_resistors;
+        x1 += xpart*distance_between_components;
+        y1 += ypart*distance_between_components;
       }
         
     }
@@ -224,13 +225,12 @@ void Controller::loop(){
           break;
         }
       //else check for resistor. If yes, start enter_text focus
-        Resistor* clicked_resistor;
-        if( (clicked_resistor = checkall_resistors(x,y)) != NULL){
+        Component* clicked_component;
+        if( (clicked_component = checkall_components(x,y)) != NULL){
           focus = enter_text;
-          editing_resistance = clicked_resistor;
+          editing_weight = clicked_component;
           textbox_x = x;
           textbox_y = y;
-          //clicked_resistor->get_textbox_xy(textbox_x,textbox_y);
           break;
         }
         //at this point, we assume the user clicked whitespace
@@ -239,11 +239,11 @@ void Controller::loop(){
             n->selected = false;
           //if we were in enter_text mode, update resistor value
           if(focus == enter_text){
-            editing_resistance->update_resistance(current_string,prefix);
+            editing_weight->update_weight(current_string,prefix);
             //delete everything from current_string
             current_string.clear();
             //set editing resistance to null
-            editing_resistance = NULL;
+            editing_weight = NULL;
             textbox_x = textbox_y = -1;
           }
           //enter no_focus note
@@ -270,11 +270,11 @@ void Controller::loop(){
         if(focus == enter_text){
           switch(key){
             case 44: case 61: //44 is return key, 61 is escape
-              editing_resistance->update_resistance(current_string, prefix);
+              editing_weight->update_weight(current_string, prefix);
               //delete everything from current_string
               current_string.clear();
               //set editing resistance to null
-              editing_resistance = NULL;
+              editing_weight = NULL;
               textbox_x = textbox_y = -1;
               focus = no_focus;
               break;
@@ -300,7 +300,7 @@ void Controller::loop(){
           default: //user enterred invalid key
             //delete everything. burn the world. Leave nothing alive
             current_string.clear();
-            editing_resistance = NULL;
+            editing_weight = NULL;
             textbox_x = textbox_y=-1;
             focus = no_focus;
         }
@@ -374,5 +374,29 @@ void Controller::add_resistor(int node_a, int node_b, int weight){
     throw std::runtime_error("node_a = node_b.... what do you want?");
 
   new Resistor(weight,c->nodes[node_a],c->nodes[node_b]);
+
+}
+
+void Controller::add_capacitor(int node_a, int node_b, int weight){
+  if(c->nodes.size() <= node_a || node_a < 0)
+    throw std::runtime_error("node_a index out of range");
+  if(c->nodes.size() <= node_b || node_b < 0)
+    throw std::runtime_error("node_b index out of range");
+  if(node_a == node_b)
+    throw std::runtime_error("node_a = node_b.... what do you want?");
+
+  new Capacitor(weight,c->nodes[node_a],c->nodes[node_b]);
+
+}
+
+void Controller::add_inductor(int node_a, int node_b, int weight){
+  if(c->nodes.size() <= node_a || node_a < 0)
+    throw std::runtime_error("node_a index out of range");
+  if(c->nodes.size() <= node_b || node_b < 0)
+    throw std::runtime_error("node_b index out of range");
+  if(node_a == node_b)
+    throw std::runtime_error("node_a = node_b.... what do you want?");
+
+  new Inductor(weight,c->nodes[node_a],c->nodes[node_b]);
 
 }

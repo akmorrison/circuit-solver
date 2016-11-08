@@ -5,6 +5,7 @@
 #include<vector>
 
 class Resistor;
+class Component;
 
 class Node : public Draggable{
   public:

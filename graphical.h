@@ -27,9 +27,11 @@ class Graphical{
 
   void draw_text(int x, int y, double theta, std::string resvalux);
   void draw_textbox(int x, int y, std::vector<char> str, char prefix); //why is it a vector? 
+
   void draw_squigley(int x1, int y1, int x2, int y2, int ascent, double resistance);
-  void draw_resistor(Resistor* r);
-  void draw_resistors_parallel(std::vector<Resistor*> parallels);
+  void draw_plates(int x1, int y1, int x2, int y2, int ascent, double capacitance);
+  void draw_loopy(int x1, int y1, int x2, int y2, int ascent, double inductance);
+  void draw_components_parallel(std::vector<Component*> parallels);
   void draw_node(Node* n);
   void draw_circuit(const Circuit* c);
   void draw_background();

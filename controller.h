@@ -27,7 +27,7 @@ class Controller{
   std::vector<char> current_string;
   int textbox_x, textbox_y;
   char keycode_to_char(unsigned int keycode);
-  Resistor* editing_resistance;
+  Component* editing_weight;
   char prefix;
 
   Controller();
@@ -38,7 +38,7 @@ class Controller{
 
   bool checkall_buttons(int x, int y); //mouseclick handler
   bool checkall_nodes(int x, int y); //you guessed it, another click handler
-  Resistor* checkall_resistors(int x, int y);
+  Component* checkall_components(int x, int y);
 
   void button_quit();
   void button_step();
@@ -48,6 +48,8 @@ class Controller{
   void add_node();
   void set_node_pos(int node_num, int x, int y);
   void add_resistor(int node_a, int node_b, int weight);
+  void add_capacitor(int node_a, int node_b, int weight);
+  void add_inductor(int node_a, int node_b, int weight);
 };
 
 

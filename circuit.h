@@ -4,7 +4,6 @@
 #include"node.h"
 
 class Node;
-class Resistor;
 
 class Circuit{
   public:
@@ -21,12 +20,11 @@ class Circuit{
   void resize_nodes(int n);
 
   void add_resistor(int a, int b, double resistance);
+  void add_capacitor(int a, int b, double capacitance);
+  void add_inductor(int a, int b, double inductance);
 
   bool step();
-  void minimize();
-
-  double equiv_resistance(); //returns the resistance of the first resistor
-                             //please call minimize() first
+  void minimize(); //calls step until it doesn't return true
 };
 
 std::ostream& operator<<(std::ostream& out, const Circuit& c);

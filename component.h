@@ -4,6 +4,8 @@
 #include "node.h"
 #include <vector>
 
+class Node;
+
 typedef enum{
   RESISTOR,
   CAPACITOR,
@@ -12,14 +14,12 @@ typedef enum{
 
 class Component{
   public:
-  Node* a, b;
+  Node *a, *b;
   component_type type;
 
-  union weight{
-    double resistance;
-    double capacitance;
-    double inductance;
-  };
+  double weight; //resistance, capacitance, or inductance
+
+  virtual ~Component() = 0;
 
   virtual void update_weight(std::vector<char> str, char prefix) = 0;
 
