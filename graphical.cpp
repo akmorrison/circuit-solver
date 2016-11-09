@@ -2,6 +2,7 @@
 #include"circuit.h"
 #include"button.h"
 #include"draggable.h"
+#include"component.h"
 #include<string>
 #include<X11/Xlib.h>
 #include<cairo/cairo.h>
@@ -55,16 +56,26 @@ void Graphical::draw_text(int x, int y, double theta, std::string resvalue){
   cairo_restore(ctx);
 }
 
-void Graphical::draw_textbox(int x, int y, std::vector<char> str, char prefix){
+void Graphical::draw_textbox(int x, int y, std::vector<char> str, char prefix, component_type type){
   //first, find the width and height of the text string
   cairo_text_extents_t extents;
   std::string new_str(str.begin(),str.end());
-  if(prefix == 'o')
-    new_str += " ohms";
-  else if(prefix == 'k')
-    new_str += " Kohms";
-  else if(prefix == 'm')
-    new_str += " Mohms";
+
+  //add the prefix and type to end of new_str
+  new_str.push_back(' ');
+  if(prefix != 'o' && prefix != 'h' && prefix != 'f'){
+    new_str.push_back(prefix);
+  }
+  switch(type){
+    case RESISTOR:
+      new_str += "ohm";
+      break;
+    case CAPACITOR:
+      new_str += "farad";
+      break;
+    case INDUCTOR:
+      new_str += "henry";
+  }
 
   int text_width, text_height;
   cairo_text_extents(ctx,new_str.c_str(),&extents);
@@ -151,6 +162,28 @@ void Graphical::draw_plates(int x1,int y1,int x2,int y2,int ascent,double capaci
 }
 
 void Graphical::draw_loopy(int x1,int y1,int x2,int y2,int ascent,double inductance,double theta){
+  //find deltas and distance
+  int deltax = x2-x1;
+  int deltay = y2-y1;
+  double distance = sqrt(deltax*deltax + deltay*deltay);
+
+  double circle_radius = distance / 8;
+
+  cairo_save(ctx);
+
+  cairo_translate(ctx,x1,y1);
+  cairo_rotate(ctx,theta);
+
+  cairo_arc(ctx,circle_radius,0,circle_radius,0,M_PI);
+  cairo_stroke(ctx);
+  cairo_arc(ctx,3*circle_radius,0,circle_radius,0,M_PI);
+  cairo_stroke(ctx);
+  cairo_arc(ctx,5*circle_radius,0,circle_radius,0,M_PI);
+  cairo_stroke(ctx);
+  cairo_arc(ctx,7*circle_radius,0,circle_radius,0,M_PI);
+  cairo_stroke(ctx);
+
+  cairo_restore(ctx);
 
 }
 

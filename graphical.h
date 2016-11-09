@@ -7,6 +7,7 @@
 #include<vector>
 #include"circuit.h"
 #include"button.h"
+#include"component.h"
 
 class Circuit;
 class Button;
@@ -26,7 +27,7 @@ class Graphical{
   cairo_surface_t *surface;
 
   void draw_text(int x, int y, double theta, std::string resvalux);
-  void draw_textbox(int x, int y, std::vector<char> str, char prefix); //why is it a vector? 
+  void draw_textbox(int x, int y, std::vector<char> str, char prefix, component_type type); //why is it a vector? 
 
   void draw_squigley(int x1, int y1, int x2, int y2, int ascent, double resistance,double theta);
   void draw_plates(int x1, int y1, int x2, int y2, int ascent, double capacitance,double theta);
