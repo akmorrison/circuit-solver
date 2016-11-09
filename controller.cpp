@@ -192,13 +192,14 @@ void Controller::loop(){
     g->draw_circuit(c);
     //if we're in text entry mode, draw a textbox
     if(focus == enter_text)
-      g->draw_textbox(textbox_x, textbox_y, current_string, prefix);
+      g->draw_textbox(textbox_x, textbox_y, current_string, prefix, editing_weight->type);
     //draw the buttons
     buttons[0]->draw_button(g->ctx);
     buttons[1]->draw_button(g->ctx);
     buttons[2]->draw_button(g->ctx);
     buttons[3]->draw_button(g->ctx);
-    buttons[3]->draw_button(g->ctx);
+
+    XSync(g->display,1);
 
 //    for(int i = buttons.size(); i > 0;)
   //   buttons[--i]->draw_button(g->ctx);
@@ -283,14 +284,31 @@ void Controller::loop(){
             //keycodes for numbers and decimals
             current_string.push_back(keycode_to_char(key));
             break;
+
+          //add ALL THE SI PREFIXES
+          case 43: //p key
+            prefix = 'p';
+            break;
+          case 53: //n key
+            prefix = 'n';
+            break;
+          case 40: //u key
+            prefix = 'u';
+            break;
+          case 54: //m key. For milli. No there is no mega.
+            prefix = 'm';
+            break;
           case 48: //k key
             prefix = 'k';
             break;
-          case 54: //m key
-            prefix = 'm';
-            break;
           case 39: // o key
             prefix = 'o';
+            break;
+          case 12: //h key
+            prefix = 'h';
+            break;
+          case 11: //f key
+            prefix = 'f';
             break;
           case 59: //backspace key
             if(current_string.size() > 0){
