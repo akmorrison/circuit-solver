@@ -231,8 +231,11 @@ void Graphical::draw_components_parallel(std::vector<Component*> parallels){
   double theta;
   if(deltax == 0)
     theta = M_PI / 2.0;
-  else
+  else{
     theta = atan(((double)deltay)/deltax);
+    if(deltax < 0)
+      theta += M_PI;
+  }
 
   int ascent = 20;
   double xcomp,ycomp;
