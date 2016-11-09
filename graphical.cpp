@@ -98,67 +98,59 @@ void Graphical::draw_textbox(int x, int y, std::vector<char> str, char prefix){
             0.0,new_str);
 }
 
-void Graphical::draw_squigley(int x1, int y1, int x2, int y2, int ascent, double resistance){
-  //draws a 6 point squigley line because that's what resistors look like.
-  //Each vertex is (ascent) distance from the line (x1,y1)->(x2,y2). 
-  //This function also writes out the resistance above the squgley,
-  //using the draw_text funciton
 
-  //start at (x1,y1)
-  cairo_move_to(ctx,x1,y1);
-
+void Graphical::draw_squigley(int x1,int y1,int x2,int y2,int ascent,double resistance,double theta){
   int deltax = x2-x1;
   int deltay = y2-y1;
-  
-  //xcomp is the x-part of the ascent vector, which has magnitude
-  //1 and the negative reciprocal slope of (x1,y1)->(x2,y2)
-  double xcomp,ycomp;
-  if(deltax == 0){
-    xcomp = 1;
-    ycomp = 0;
-  }
-  else{
-    xcomp = sin(atan(((double)deltay)/deltax));
-    ycomp = cos(atan(((double)deltay)/deltax));
-  }
 
-  //a 6 point squigley has 12 lines
-  for(int i = 1; i < 12; i += 2){
-    int j = (i-1)/2;
-    int xval = x1+i*deltax/12 + pow(-1,j)*ascent*xcomp;
-    int yval = y1+i*deltay/12 - pow(-1,j)*ascent*ycomp;;
-    cairo_line_to(ctx,xval,yval);
-  }
-  cairo_line_to(ctx,x2,y2);
+  int distance = sqrt(deltax*deltax + deltay*deltay);
+  double distance_over_twelve = distance/12.0;
 
- 
-  std::stringstream ss;
-  if(resistance > 9999999)
-    ss << (int) (resistance / 1000000) << " Mohms";
-  if(resistance > 9999)
-    ss << (int) resistance / 1000 << " Kohms";
-  else if((resistance-(int)resistance) < 0.01)
-    ss << std::fixed << std::setprecision(0) << resistance << " ohms";
-  else
-    ss << std::fixed << std::setprecision(2) << resistance << " ohms";
- 
-  if(ycomp < 0){
-    ycomp *= -1;
-    xcomp *= -1;
-  }  
-  std::string resvalue = ss.str();
-  int text_x = x1 + fabs(xcomp)*ascent;
-  int text_y = y1 - fabs(ycomp)*ascent;
+  cairo_save(ctx);
+  cairo_move_to(ctx,x1,y1);
+  cairo_rotate(ctx,theta);
+  cairo_rel_line_to(ctx,distance_over_twelve,ascent);
+  cairo_rel_line_to(ctx,2*distance_over_twelve,-2*ascent);
+  cairo_rel_line_to(ctx,2*distance_over_twelve,2*ascent);
+  cairo_rel_line_to(ctx,2*distance_over_twelve,-2*ascent);
+  cairo_rel_line_to(ctx,2*distance_over_twelve,2*ascent);
+  cairo_rel_line_to(ctx,2*distance_over_twelve,-2*ascent);
+  cairo_rel_line_to(ctx,distance_over_twelve,ascent);
+  cairo_stroke(ctx);
 
-  draw_text(text_x,text_y,atan(xcomp/ycomp), resvalue);
+  cairo_restore(ctx);
 }
 
-void Graphical::draw_plates(int x1,int y1,int x2,int y2,int ascent,double capacitance){
+void Graphical::draw_plates(int x1,int y1,int x2,int y2,int ascent,double capacitance,double theta){
+  //find theta
+  int deltax = x2 - x1;
+  int deltay = y2 - y1;
 
+  cairo_save(ctx);
 
+  //calculate distance
+  int distance = sqrt(deltax*deltax + deltay*deltay);
+  int separation = 20;
+
+  cairo_move_to(ctx,x1,y1);
+  cairo_rotate(ctx,theta);
+  cairo_rel_line_to(ctx,(distance-separation)/2,0);
+  cairo_rel_move_to(ctx, 0, ascent);
+  cairo_rel_line_to(ctx, 0, ascent * -2);
+
+  cairo_restore(ctx);
+
+  cairo_save(ctx);
+  cairo_move_to(ctx,x2,y2);
+  cairo_rotate(ctx,theta);
+  cairo_rel_line_to(ctx,-1*(distance-separation)/2,0);
+  cairo_rel_move_to(ctx, 0, ascent);
+  cairo_rel_line_to(ctx, 0, ascent * -2);
+  cairo_stroke(ctx);
+  cairo_restore(ctx);
 }
 
-void Graphical::draw_loopy(int x1,int y1,int x2,int y2,int ascent,double inductance){
+void Graphical::draw_loopy(int x1,int y1,int x2,int y2,int ascent,double inductance,double theta){
 
 }
 
@@ -203,6 +195,12 @@ void Graphical::draw_components_parallel(std::vector<Component*> parallels){
   int deltax = x2-x1;
   int deltay = y2-y1;
 
+  double theta;
+  if(deltax == 0)
+    theta = M_PI / 2.0;
+  else
+    theta = atan(((double)deltay)/deltax);
+
   int ascent = 20;
   double xcomp,ycomp;
   if(deltax == 0){
@@ -210,8 +208,8 @@ void Graphical::draw_components_parallel(std::vector<Component*> parallels){
     ycomp = 0;
   }
   else{
-    xcomp = sin(atan(((double)deltay)/deltax));
-    ycomp = cos(atan(((double)deltay)/deltax));
+    xcomp = sin(theta);
+    ycomp = cos(theta);
   }
 
   //find the slope of the orthogonal
@@ -262,11 +260,11 @@ void Graphical::draw_components_parallel(std::vector<Component*> parallels){
     xt2 = xstart2+(2*ascent+pad)*xpart*i;
     yt2 = ystart2+(2*ascent+pad)*ypart*i;
     if(parallels[i]->type == RESISTOR)
-      draw_squigley(xt1,yt1,xt2,yt2,ascent,parallels[i]->weight);
+      draw_squigley(xt1,yt1,xt2,yt2,ascent,parallels[i]->weight,theta);
     else if(parallels[i]->type == CAPACITOR)
-      draw_plates(xt1,yt1,xt2,yt2,ascent, parallels[i]->weight);
+      draw_plates(xt1,yt1,xt2,yt2,ascent, parallels[i]->weight,theta);
     else if(parallels[i]->type == INDUCTOR)
-      draw_loopy(xt1,yt1,xt2,yt2,ascent, parallels[i]->weight);
+      draw_loopy(xt1,yt1,xt2,yt2,ascent, parallels[i]->weight,theta);
   }
 
 }
