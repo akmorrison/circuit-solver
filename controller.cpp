@@ -4,6 +4,7 @@
 #include"graphical.h"
 #include"button.h"
 #include"draggable.h"
+#include"constants.h"
 #include<cmath>
 
 Controller::Controller(){
@@ -152,27 +153,27 @@ char Controller::keycode_to_char(unsigned int keycode){
   //36 to '8', 37 to '0'
 
   switch(keycode){ //there is probably a smart way to do this
-    case 37:       //what with it being 12:30am, and I have
+    case key_0_c:       //what with it being 12:30am, and I have
       return '0';  //absolutely no idea what I'm doing, I'm
-    case 26:       //gonna hardcode a switch statement for all
+    case key_1_c:       //gonna hardcode a switch statement for all
       return '1';  //the keyvalues I care about
-    case 27:
+    case key_2_c:
       return '2';
-    case 28:
+    case key_3_c:
       return '3';
-    case 29:
+    case key_4_c:
       return '4';
-    case 31:
+    case key_5_c:
       return '5';
-    case 30:
+    case key_6_c:
       return '6';
-    case 34:
+    case key_7_c:
       return '7';
-    case 36:
+    case key_8_c:
       return '8';
-    case 33:
+    case key_9_c:
       return '9';
-    case 55:
+    case key_dot_c:
       return '.';
     default:
       return 'Q'; //no reason this is the default 
@@ -279,39 +280,40 @@ void Controller::loop(){
               textbox_x = textbox_y = -1;
               focus = no_focus;
               break;
-          case 26:case 27:case 28:case 29:case 30:case 31:
-          case 33:case 34:case 36:case 37:case 55:
+          case key_1_c:case key_2_c:case key_3_c:case key_4_c:case key_5_c:
+          case key_6_c:case key_7_c:case key_8_c:case key_9_c:case key_0_c:
+          case key_dot_c:
             //keycodes for numbers and decimals
             current_string.push_back(keycode_to_char(key));
             break;
 
           //add ALL THE SI PREFIXES
-          case 43: //p key
+          case key_p_c:
             prefix = 'p';
             break;
-          case 53: //n key
+          case key_n_c:
             prefix = 'n';
             break;
-          case 40: //u key
+          case key_u_c:
             prefix = 'u';
             break;
-          case 54: //m key. For milli. No there is no mega.
+          case key_m_c: //m key. For milli. No there is no mega.
             prefix = 'm';
             break;
-          case 48: //k key
+          case key_k_c: //k key
             prefix = 'k';
             break;
-          case 39: // o key
+          case key_o_c: // o key
             prefix = 'o';
             break;
-          case 12: //h key
+          case key_h_c: //h key
             prefix = 'h';
             break;
-          case 11: //f key
+          case key_f_c: //f key
             prefix = 'f';
             break;
-          case 59: //backspace key
-            if(current_string.size() > 0){
+          case key_bksp_c: //backspace key
+            if(!current_string.empty()){
               current_string.pop_back();
               break;
             }
