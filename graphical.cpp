@@ -129,7 +129,40 @@ void Graphical::draw_squigley(int x1,int y1,int x2,int y2,int ascent,double resi
   cairo_rel_line_to(ctx,distance_over_twelve,ascent);
   cairo_stroke(ctx);
 
+
   cairo_restore(ctx);
+
+  //print the resistance value just above the resistor
+  std::stringstream ss;
+  if(resistance < .000000001){
+    resistance *= 1000000000000;
+    ss << resistance << " pohms";
+  }
+  else if(resistance < .000001){
+    resistance *= 1000000000;
+    ss << resistance << " nohms";
+  }
+  else if(resistance < .001){
+    resistance *= 1000000;
+    ss << resistance << " uohms";
+  }
+  else if(resistance < 1){
+    resistance *= 1000;
+    ss << resistance << " mohms";
+  }
+  else if(resistance < 1000){
+    ss << resistance << " ohms";
+  }
+  else if(resistance < 1000000){
+    resistance /= 1000;
+    ss << resistance << " kohms";
+  }
+  else if(resistance < 1000000000){
+    resistance /= 1000000;
+    ss << resistance << " Mohms";
+  }
+
+  draw_text(x1+20*sin(theta),y1+20*cos(theta+M_PI),theta,ss.str());
 }
 
 void Graphical::draw_plates(int x1,int y1,int x2,int y2,int ascent,double capacitance,double theta){
@@ -159,6 +192,39 @@ void Graphical::draw_plates(int x1,int y1,int x2,int y2,int ascent,double capaci
   cairo_rel_line_to(ctx, 0, ascent * -2);
   cairo_stroke(ctx);
   cairo_restore(ctx);
+
+
+  //print the capacitance value just above the capacitor
+  std::stringstream ss;
+  if(capacitance < .000000001){
+    capacitance *= 1000000000000;
+    ss << capacitance << " pfarads";
+  }
+  else if(capacitance < .000001){
+    capacitance *= 1000000000;
+    ss << capacitance << " nfarads";
+  }
+  else if(capacitance < .001){
+    capacitance *= 1000000;
+    ss << capacitance << " ufarads";
+  }
+  else if(capacitance < 1){
+    capacitance *= 1000;
+    ss << capacitance << " mfarads";
+  }
+  else if(capacitance < 1000){
+    ss << capacitance << " farads";
+  }
+  else if(capacitance < 1000000){
+    capacitance /= 1000;
+    ss << capacitance << " kfarads";
+  }
+  else if(capacitance < 1000000000){
+    capacitance /= 1000000;
+    ss << capacitance << " Mfarads";
+  }
+
+  draw_text(x1+20*sin(theta),y1+20*cos(theta+M_PI),theta,ss.str());
 }
 
 void Graphical::draw_loopy(int x1,int y1,int x2,int y2,int ascent,double inductance,double theta){
@@ -185,10 +251,42 @@ void Graphical::draw_loopy(int x1,int y1,int x2,int y2,int ascent,double inducta
 
   cairo_restore(ctx);
 
+  //print the inductance value just above the inductor
+  std::stringstream ss;
+  if(inductance < .000000001){
+    inductance *= 1000000000000;
+    ss << inductance << " phenrys";
+  }
+  else if(inductance < .000001){
+    inductance *= 1000000000;
+    ss << inductance << " nhenrys";
+  }
+  else if(inductance < .001){
+    inductance *= 1000000;
+    ss << inductance << " uhenrys";
+  }
+  else if(inductance < 1){
+    inductance *= 1000;
+    ss << inductance << " mhenrys";
+  }
+  else if(inductance < 1000){
+    ss << inductance << " henrys";
+  }
+  else if(inductance < 1000000){
+    inductance /= 1000;
+    ss << inductance << " khenrys";
+  }
+  else if(inductance < 1000000000){
+    inductance /= 1000000;
+    ss << inductance << " Mhenrys";
+  }
+
+  draw_text(x1+20*sin(theta),y1+20*cos(theta+M_PI),theta,ss.str());
 }
 
 void Graphical::draw_components_parallel(std::vector<Component*> parallels){
   Component* c = parallels[0]; //used for finding nodes
+
   int x1,y1,x2,y2;
   x1 = c->a->x;
   y1 = c->a->y;
@@ -226,6 +324,7 @@ void Graphical::draw_components_parallel(std::vector<Component*> parallels){
   }
 
   int deltax = x2-x1;
+
   int deltay = y2-y1;
 
   double theta;
