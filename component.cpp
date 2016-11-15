@@ -53,10 +53,26 @@ void Resistor::update_weight(std::vector<char> str, char prefix){
   }
   for(int i = 0; i < digits_after_decimal; i++)
     new_resistance /= 10.0;
-  if(prefix == 'k')
-    new_resistance *= 1000;
-  else if(prefix == 'm')
-    new_resistance *= 1000000;
+  switch(prefix){ //si prefixes that Have letters
+    case 'p':
+      new_resistance /= 1000000000000; //picohenry's are small
+      break;
+    case 'n':
+      new_resistance /= 1000000000; //nanohenrys. Also small
+      break;
+    case 'u':
+      new_resistance /= 1000000; //microheny
+      break;
+    case 'm':
+      new_resistance /= 1000;
+      break;
+    case 'k':
+      new_resistance *= 1000;
+      break;
+    case 'M':
+      new_resistance *= 1000000; //megahenry
+      break;
+  }
   weight = new_resistance; //jesus that's some convoluted logic
 }
 
