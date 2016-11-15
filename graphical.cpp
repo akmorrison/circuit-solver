@@ -3,6 +3,7 @@
 #include"button.h"
 #include"draggable.h"
 #include"component.h"
+#include"constants.h"
 #include<string>
 #include<X11/Xlib.h>
 #include<cairo/cairo.h>
@@ -110,7 +111,7 @@ void Graphical::draw_textbox(int x, int y, std::vector<char> str, char prefix, c
 }
 
 
-void Graphical::draw_squigley(int x1,int y1,int x2,int y2,int ascent,double resistance,double theta){
+void Graphical::draw_squigley(int x1,int y1,int x2,int y2,double resistance,double theta){
   int deltax = x2-x1;
   int deltay = y2-y1;
 
@@ -120,13 +121,13 @@ void Graphical::draw_squigley(int x1,int y1,int x2,int y2,int ascent,double resi
   cairo_save(ctx);
   cairo_move_to(ctx,x1,y1);
   cairo_rotate(ctx,theta);
-  cairo_rel_line_to(ctx,distance_over_twelve,ascent);
-  cairo_rel_line_to(ctx,2*distance_over_twelve,-2*ascent);
-  cairo_rel_line_to(ctx,2*distance_over_twelve,2*ascent);
-  cairo_rel_line_to(ctx,2*distance_over_twelve,-2*ascent);
-  cairo_rel_line_to(ctx,2*distance_over_twelve,2*ascent);
-  cairo_rel_line_to(ctx,2*distance_over_twelve,-2*ascent);
-  cairo_rel_line_to(ctx,distance_over_twelve,ascent);
+  cairo_rel_line_to(ctx,distance_over_twelve,resistor_ascent_c);
+  cairo_rel_line_to(ctx,2*distance_over_twelve,-2*resistor_ascent_c);
+  cairo_rel_line_to(ctx,2*distance_over_twelve,2*resistor_ascent_c);
+  cairo_rel_line_to(ctx,2*distance_over_twelve,-2*resistor_ascent_c);
+  cairo_rel_line_to(ctx,2*distance_over_twelve,2*resistor_ascent_c);
+  cairo_rel_line_to(ctx,2*distance_over_twelve,-2*resistor_ascent_c);
+  cairo_rel_line_to(ctx,distance_over_twelve,resistor_ascent_c);
   cairo_stroke(ctx);
 
 
@@ -165,7 +166,7 @@ void Graphical::draw_squigley(int x1,int y1,int x2,int y2,int ascent,double resi
   draw_text(x1+20*sin(theta),y1+20*cos(theta+M_PI),theta,ss.str());
 }
 
-void Graphical::draw_plates(int x1,int y1,int x2,int y2,int ascent,double capacitance,double theta){
+void Graphical::draw_plates(int x1,int y1,int x2,int y2,double capacitance,double theta){
   //find theta
   int deltax = x2 - x1;
   int deltay = y2 - y1;
@@ -179,8 +180,8 @@ void Graphical::draw_plates(int x1,int y1,int x2,int y2,int ascent,double capaci
   cairo_move_to(ctx,x1,y1);
   cairo_rotate(ctx,theta);
   cairo_rel_line_to(ctx,(distance-separation)/2,0);
-  cairo_rel_move_to(ctx, 0, ascent);
-  cairo_rel_line_to(ctx, 0, ascent * -2);
+  cairo_rel_move_to(ctx, 0, capacitor_ascent_c);
+  cairo_rel_line_to(ctx, 0, capacitor_ascent_c * -2);
 
   cairo_restore(ctx);
 
@@ -188,8 +189,8 @@ void Graphical::draw_plates(int x1,int y1,int x2,int y2,int ascent,double capaci
   cairo_move_to(ctx,x2,y2);
   cairo_rotate(ctx,theta);
   cairo_rel_line_to(ctx,-1*(distance-separation)/2,0);
-  cairo_rel_move_to(ctx, 0, ascent);
-  cairo_rel_line_to(ctx, 0, ascent * -2);
+  cairo_rel_move_to(ctx, 0, capacitor_ascent_c);
+  cairo_rel_line_to(ctx, 0, capacitor_ascent_c * -2);
   cairo_stroke(ctx);
   cairo_restore(ctx);
 
@@ -227,7 +228,7 @@ void Graphical::draw_plates(int x1,int y1,int x2,int y2,int ascent,double capaci
   draw_text(x1+20*sin(theta),y1+20*cos(theta+M_PI),theta,ss.str());
 }
 
-void Graphical::draw_loopy(int x1,int y1,int x2,int y2,int ascent,double inductance,double theta){
+void Graphical::draw_loopy(int x1,int y1,int x2,int y2,double inductance,double theta){
   //find deltas and distance
   int deltax = x2-x1;
   int deltay = y2-y1;
@@ -395,11 +396,11 @@ void Graphical::draw_components_parallel(std::vector<Component*> parallels){
     xt2 = xstart2+(2*ascent+pad)*xpart*i;
     yt2 = ystart2+(2*ascent+pad)*ypart*i;
     if(parallels[i]->type == RESISTOR)
-      draw_squigley(xt1,yt1,xt2,yt2,ascent,parallels[i]->weight,theta);
+      draw_squigley(xt1,yt1,xt2,yt2,parallels[i]->weight,theta);
     else if(parallels[i]->type == CAPACITOR)
-      draw_plates(xt1,yt1,xt2,yt2,ascent, parallels[i]->weight,theta);
+      draw_plates(xt1,yt1,xt2,yt2, parallels[i]->weight,theta);
     else if(parallels[i]->type == INDUCTOR)
-      draw_loopy(xt1,yt1,xt2,yt2,ascent, parallels[i]->weight,theta);
+      draw_loopy(xt1,yt1,xt2,yt2, parallels[i]->weight,theta);
   }
 
 }
